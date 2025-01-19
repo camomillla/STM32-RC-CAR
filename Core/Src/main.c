@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "tim.h"
 #include "usart.h"
 #include "usb_otg.h"
 #include "gpio.h"
@@ -66,6 +67,100 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 		ATC_IdleLineCallback(&ESP, Size);
 	}
 }
+
+typedef struct
+{
+	int previous_error; 		//Poprzedni błąd dla członu różniczkującego
+	int total_error;		//Suma uchybów dla członu całkującego
+	float Kp;			//Wzmocnienie członu proporcjonalnego
+	float Ki;			//Wzmocnienie członu całkującego*/
+	float Kd;			//Wzmocnienie członu różniczkującego*/
+	int anti_windup_limit;		//Anti-Windup - ograniczenie członu całkującego*/
+} PID;
+
+void pid_init(PID *pid_data, float kp_init, float ki_init, float kd_init, int anti_windup_limit_init)
+{
+	pid_data->previous_error = 0;
+	pid_data->total_error = 0;
+
+	pid_data->Kp = kp_init;
+	pid_data->Ki = ki_init;
+	pid_data->Kd = kd_init;
+
+	pid_data->anti_windup_limit = anti_windup_limit_init;
+}
+
+void pid_reset(PID *pid_data)
+{
+	pid_data->total_error = 0;
+	pid_data->previous_error = 0;
+}
+
+int pid_calculate(PID *pid_data, int setpoint, int process_variable)
+{
+	int error;
+	float p_term, i_term, d_term;
+
+	error = setpoint - process_variable;		//obliczenie uchybu
+	pid_data->total_error += error;			//sumowanie uchybu
+
+	p_term = (float)(pid_data->Kp * error);		//odpowiedź członu proporcjonalnego
+	i_term = (float)(pid_data->Ki * pid_data->total_error);	//odpowiedź członu całkującego
+	d_term = (float)(pid_data->Kd * (error - pid_data->previous_error));//odpowiedź członu różniczkującego
+
+	if(i_term >= pid_data->anti_windup_limit) i_term = pid_data->anti_windup_limit;	//Anti-Windup - ograniczenie odpowiedzi członu całkującego
+	else if(i_term <= -pid_data->anti_windup_limit) i_term = -pid_data->anti_windup_limit;
+
+	pid_data->previous_error = error;	//aktualizacja zmiennej z poprzednią wartością błędu
+
+	return (int)(p_term + i_term + d_term);		//odpowiedź regulatora
+}
+
+#define MOTOR_A_Kp					4.5
+#define MOTOR_A_Ki					0.8
+#define MOTOR_A_Kd					0.5
+#define MOTOR_A_ANTI_WINDUP			1000
+
+#define ENCODER_RESOLUTION			3
+#define TIMER_CONF_BOTH_EDGE_T1T2	4
+#define MOTOR_GEAR					150
+
+#define	TIMER_FREQENCY				20
+#define	SECOND_IN_MINUTE			60
+
+typedef struct
+{
+	TIM_HandleTypeDef *timer;	//timer obsługujący enkoder silnika
+
+	uint16_t resolution;		//rozdzielczość silnika
+
+	int pulse_count;		//zliczone impulsy
+	int measured_speed;		//obliczona prędkość silnika
+	int set_speed;			//zadana prędkość silnika
+
+	int actual_PWM;			//wartość PWM
+
+	PID pid_controller;
+} MOTOR;
+
+void motor_init(MOTOR *m, TIM_HandleTypeDef *tim)
+{
+	m->timer = tim;
+	m->resolution = ENCODER_RESOLUTION * TIMER_CONF_BOTH_EDGE_T1T2 * MOTOR_GEAR;
+
+	m->pulse_count = 0;
+	m->measured_speed = 0;
+	m->set_speed = 0;
+    m->actual_PWM = 0;
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance == TIM6)
+	{
+		//motor_calculate_speed(&motorA);
+	}
+}
 /* USER CODE END 0 */
 
 /**
@@ -101,10 +196,24 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_OTG_FS_PCD_Init();
   MX_USART2_UART_Init();
+  MX_TIM1_Init();
+  MX_TIM3_Init();
+  MX_TIM4_Init();
+  MX_TIM8_Init();
+  MX_TIM2_Init();
+  MX_TIM6_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
   ATC_Init(&ESP, &huart2, 512, "ESP");
   resp = ATC_SendReceive(&ESP, "AT+CWMODE=3\r\n", 100, NULL, 100, 2, "\r\nOK\r\n", "\r\nERROR\r\n");
   resp = ATC_SendReceive(&ESP, "AT+CWSAP=\"SIECTEST\",\"\",1,0\r\n", 100, NULL, 100, 2, "\r\nOK\r\n", "\r\nERROR\r\n");
+
+  HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+  //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 500);
+  //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 500);
+  char buffer[32];
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -114,6 +223,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  sprintf(buffer, "%lu\r\n", htim1.Instance->CNT);
+	  HAL_UART_Transmit(&huart3, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
+	  HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }
