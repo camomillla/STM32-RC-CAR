@@ -83,8 +83,8 @@ void Error_Handler(void);
 #define LD1_GPIO_Port GPIOB
 #define ENCODER_LF1_Pin GPIO_PIN_9
 #define ENCODER_LF1_GPIO_Port GPIOE
-#define ENCODER_LF1E11_Pin GPIO_PIN_11
-#define ENCODER_LF1E11_GPIO_Port GPIOE
+#define ENCODER_LF2_Pin GPIO_PIN_11
+#define ENCODER_LF2_GPIO_Port GPIOE
 #define MOTOR_LF_Pin GPIO_PIN_11
 #define MOTOR_LF_GPIO_Port GPIOB
 #define RMII_TXD1_Pin GPIO_PIN_13

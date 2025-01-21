@@ -123,7 +123,7 @@ int pid_calculate(PID *pid_data, int setpoint, int process_variable)
 
 #define ENCODER_RESOLUTION			3
 #define TIMER_CONF_BOTH_EDGE_T1T2	4
-#define MOTOR_GEAR					150
+#define MOTOR_GEAR					50
 
 #define	TIMER_FREQENCY				20
 #define	SECOND_IN_MINUTE			60
@@ -143,6 +143,8 @@ typedef struct
 	PID pid_controller;
 } MOTOR;
 
+MOTOR motorA;
+
 void motor_init(MOTOR *m, TIM_HandleTypeDef *tim)
 {
 	m->timer = tim;
@@ -154,13 +156,71 @@ void motor_init(MOTOR *m, TIM_HandleTypeDef *tim)
     m->actual_PWM = 0;
 }
 
+void motor_calculate_speed(MOTOR *m)
+{
+	motor_update_count(m);
+
+	m->measured_speed = (m->pulse_count * TIMER_FREQENCY * SECOND_IN_MINUTE) / m->resolution;
+
+	int output = pid_calculate(&(m->pid_controller), m->set_speed, m->measured_speed);
+
+	m->actual_PWM += output;
+
+	if(m->actual_PWM >= 0)
+	{
+		//drv8835_set_motorA_direction(CW);
+		drv8835_set_motorA_speed(m->actual_PWM);
+		//__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, m->actual_PWM);
+		//__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 500);
+
+	}
+	else
+	{
+		//drv8835_set_motorA_direction(CCW);
+		//drv8835_set_motorA_speed(-m->actual_PWM);
+	}
+}
+
+void motor_update_count(MOTOR *m)
+{
+	m->pulse_count = (int16_t)__HAL_TIM_GET_COUNTER(m->timer);
+	__HAL_TIM_SET_COUNTER(m->timer, 0);
+}
+
+void motor_set_speed(MOTOR *m, int set_speed)
+{
+	if(set_speed != m->set_speed)
+		pid_reset(&(m->pid_controller));
+
+	m->set_speed = set_speed;
+}
+
+void drv8835_set_motorA_speed(uint16_t speed)
+{
+	if(speed >= htim2.Instance->ARR)
+		speed = htim2.Instance->ARR;
+
+	__HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_1, speed);
+}
+
+void drv8835_init()
+{
+	//drv8835_mode_control(Phase_Enable_Mode);
+	//drv8835_set_motorA_direction(CCW);
+	drv8835_set_motorA_speed(0);
+
+	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+}
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim->Instance == TIM6)
 	{
-		//motor_calculate_speed(&motorA);
+		motor_calculate_speed(&motorA);
 	}
 }
+
+
 /* USER CODE END 0 */
 
 /**
@@ -204,16 +264,36 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
+
   ATC_Init(&ESP, &huart2, 512, "ESP");
-  resp = ATC_SendReceive(&ESP, "AT+CWMODE=3\r\n", 100, NULL, 100, 2, "\r\nOK\r\n", "\r\nERROR\r\n");
-  resp = ATC_SendReceive(&ESP, "AT+CWSAP=\"SIECTEST\",\"\",1,0\r\n", 100, NULL, 100, 2, "\r\nOK\r\n", "\r\nERROR\r\n");
+  ATC_SendReceive(&ESP, "AT\r\n", 1000, NULL, 1000, 0);
+  ATC_SendReceive(&ESP, "AT+CWMODE=1\r\n", 1000, NULL, 1000, 0);
+  ATC_SendReceive(&ESP, "AT+CWJAP=\"DeathLock\",\"\"\r\n", 5000, NULL, 5000, 0);
+
+
+
 
   HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
+  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+  HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
+  HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
+
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+
+  HAL_TIM_Base_Start_IT(&htim6);
+
+  drv8835_init();
+  motor_init(&motorA, &htim4);
+  pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
+
+  int speed_table[] = {50, 100, 25, 125};
+  int i = 0;
+  uint32_t time_tick = HAL_GetTick();
+  uint32_t max_time = 5000;
   //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 500);
   //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 500);
-  char buffer[32];
+  //char buffer[32];
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -223,9 +303,16 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  sprintf(buffer, "%lu\r\n", htim1.Instance->CNT);
-	  HAL_UART_Transmit(&huart3, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
-	  HAL_Delay(100);
+	  //ATC_Loop(&ESP);
+	  //sprintf(buffer, "%lu\r\n", htim1.Instance->CNT);
+	  //HAL_UART_Transmit(&huart3, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
+	  //HAL_Delay(100);
+	  if ((HAL_GetTick() - time_tick) > max_time) {
+		  time_tick = HAL_GetTick();
+		  motor_set_speed(&motorA, speed_table[i++]);
+
+		  i %= 4;
+	  }
   }
   /* USER CODE END 3 */
 }

@@ -1,0 +1,10 @@
+E:\DeathProject\STM32-RC-CAR\PC-Application\bin\Debug\PC-Application.exe.config
+E:\DeathProject\STM32-RC-CAR\PC-Application\bin\Debug\PC-Application.exe
+E:\DeathProject\STM32-RC-CAR\PC-Application\bin\Debug\PC-Application.pdb
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.csproj.AssemblyReference.cache
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC_Application.MainWindow.resources
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC_Application.Properties.Resources.resources
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.csproj.GenerateResource.cache
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.csproj.CoreCompileInputs.cache
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.exe
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.pdb
