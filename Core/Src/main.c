@@ -221,6 +221,27 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 }
 
 
+/*=================================*/
+
+#define RX_TIMEOUT 1000 // Timeout 1 sekunda
+#define TX_TIMEOUT 1000 // Timeout wysyłania
+char* response = NULL;  // Bufor na odpowiedź
+
+void Set_PWM_Frequency(uint32_t frequency) {
+    if (frequency == 0) {
+        HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2); // Zatrzymanie PWM
+        return;
+    }
+
+    uint32_t timer_clock = 96000000; // 96 MHz zegar bazowy
+    uint32_t prescaler = htim12.Init.Prescaler + 1;
+    uint32_t period = (timer_clock / (prescaler * frequency)) - 1;
+
+    __HAL_TIM_SET_AUTORELOAD(&htim2, period);
+    __HAL_TIM_SET_COMPARE(&htim12, TIM_CHANNEL_2, period / 2); // Wypełnienie 50%
+    HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2); // Start PWM
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -263,11 +284,14 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM6_Init();
   MX_TIM5_Init();
+  MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
 
   ATC_Init(&ESP, &huart2, 512, "ESP");
   ATC_SendReceive(&ESP, "AT\r\n", 1000, NULL, 1000, 0);
   ATC_SendReceive(&ESP, "AT+CWMODE=1\r\n", 1000, NULL, 1000, 0);
+  ATC_SendReceive(&ESP, "AT+CIPMUX=1\r\n", 1000, NULL, 1000, 0);
+  ATC_SendReceive(&ESP, "AT+CIPSERVER=1,80\r\n", 1000, NULL, 1000, 0);
   ATC_SendReceive(&ESP, "AT+CWJAP=\"DeathLock\",\"\"\r\n", 5000, NULL, 5000, 0);
 
 
@@ -287,6 +311,9 @@ int main(void)
   motor_init(&motorA, &htim4);
   pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
 
+  const char *readyMsg = "STM32 ready to receive data from ESP...\r\n";
+      HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
+
   int speed_table[] = {0, 50, 100, 50};
   int i = 0;
   uint32_t time_tick = HAL_GetTick();
@@ -294,6 +321,14 @@ int main(void)
   //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 500);
   //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 500);
   //char buffer[32];
+
+  char* response = NULL;
+  int result = -1;
+  uint32_t timeout = 5000;
+  uint8_t items = 0;
+
+  //HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+  int x = 0;Set_PWM_Frequency(1000); // A4 - 440 Hz
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -303,6 +338,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+
+
 	  //ATC_Loop(&ESP);
 	  //sprintf(buffer, "%lu\r\n", htim1.Instance->CNT);
 	  //HAL_UART_Transmit(&huart3, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);

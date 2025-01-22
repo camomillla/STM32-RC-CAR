@@ -9,6 +9,7 @@
 ../Core/Src/main.c:198:6:drv8835_set_motorA_speed	2
 ../Core/Src/main.c:206:6:drv8835_init	1
 ../Core/Src/main.c:215:6:HAL_TIM_PeriodElapsedCallback	2
-../Core/Src/main.c:230:5:main	2
-../Core/Src/main.c:324:6:SystemClock_Config	4
-../Core/Src/main.c:385:6:Error_Handler	1
+../Core/Src/main.c:230:6:Set_PWM_Frequency	2
+../Core/Src/main.c:251:5:main	2
+../Core/Src/main.c:362:6:SystemClock_Config	4
+../Core/Src/main.c:423:6:Error_Handler	1
