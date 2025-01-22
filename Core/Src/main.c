@@ -116,10 +116,10 @@ int pid_calculate(PID *pid_data, int setpoint, int process_variable)
 	return (int)(p_term + i_term + d_term);		//odpowiedź regulatora
 }
 
-#define MOTOR_A_Kp					4.5
-#define MOTOR_A_Ki					0.8
-#define MOTOR_A_Kd					0.5
-#define MOTOR_A_ANTI_WINDUP			1000
+#define MOTOR_A_Kp					3
+#define MOTOR_A_Ki					0.05
+#define MOTOR_A_Kd					1.05
+#define MOTOR_A_ANTI_WINDUP			1
 
 #define ENCODER_RESOLUTION			3
 #define TIMER_CONF_BOTH_EDGE_T1T2	4
@@ -287,7 +287,7 @@ int main(void)
   motor_init(&motorA, &htim4);
   pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
 
-  int speed_table[] = {50, 100, 25, 125};
+  int speed_table[] = {0, 50, 100, 50};
   int i = 0;
   uint32_t time_tick = HAL_GetTick();
   uint32_t max_time = 5000;
@@ -311,7 +311,7 @@ int main(void)
 		  time_tick = HAL_GetTick();
 		  motor_set_speed(&motorA, speed_table[i++]);
 
-		  i %= 4;
+		  i %=4;
 	  }
   }
   /* USER CODE END 3 */
