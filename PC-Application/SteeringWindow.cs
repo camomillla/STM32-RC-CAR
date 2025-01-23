@@ -15,8 +15,13 @@ namespace PC_Application
     {
         private float pointerAngle = 0.0F;
         private float targetAngle = 0.0F;
+
+        private float speedometerArrowAngle = 0.0F;
+        private float speedometerArrowTargetAngle = 0.0F;
+
         private Timer updateTimer;
         private Image originalPointerImage;
+        private Image originalArrowImage;
 
         private bool isKeyUpPressed = false;
         private bool isKeyDownPressed = false;
@@ -26,11 +31,16 @@ namespace PC_Application
         {
             InitializeComponent();
             this.Init();
+
+            PB_Speedometer_Arrow.Parent = PB_Speedometer_Back;
+            PB_Speedometer_Arrow.Parent.BringToFront();
+            PB_Speedometer_Arrow.Location = Point.Empty;
         }
 
         private void Init()
         {
-            this.originalPointerImage = this.PB_Pointer.BackgroundImage;
+            this.originalPointerImage = this.PB_Pointer.Image;
+            this.originalArrowImage = this.PB_Speedometer_Arrow.Image;
 
             this.KeyDown += MainWindow_KeyDown;
             this.KeyUp += MainWindow_KeyUp;
@@ -45,6 +55,9 @@ namespace PC_Application
 
         private Boolean CheckKeys(System.Windows.Forms.KeyEventArgs e)
         {
+
+            if (e.KeyCode == Keys.Enter) return true;
+
             if (e.KeyCode != Keys.Up &&
                 e.KeyCode != Keys.Down &&
                 e.KeyCode != Keys.Left &&
@@ -190,6 +203,12 @@ namespace PC_Application
             else
                 this.targetAngle = 0.0F;
 
+            if (Keyboard.IsKeyDown(Key.Enter))
+            {
+                this.speedometerArrowTargetAngle = 270.0F;
+            }
+            else this.speedometerArrowTargetAngle = 0.0F;
+
             //PB_Pointer.Image?.Dispose();
             //PB_Pointer.Image = RotateImage(this.originalPointerImage, this.pointerAngle);
         }
@@ -205,24 +224,35 @@ namespace PC_Application
             }
             else
                 this.pointerAngle = this.targetAngle;
+
+            if (Math.Abs(this.speedometerArrowAngle - this.speedometerArrowTargetAngle) > angleSpeed)
+            {
+                if (this.speedometerArrowAngle < this.speedometerArrowTargetAngle)
+                    this.speedometerArrowAngle += angleSpeed;
+                else this.speedometerArrowAngle -= angleSpeed;
+            }
+            else
+                this.speedometerArrowAngle = this.speedometerArrowTargetAngle;
+
             this.Invalidate();
-            this.RotateImage(this.pointerAngle);
+            this.PB_Pointer.Image = RotateImage(originalPointerImage, this.pointerAngle);
+            this.PB_Speedometer_Arrow.Image = RotateImage(originalArrowImage, this.speedometerArrowAngle);
         }
 
-        public void RotateImage(float angle)
+        public Image RotateImage(Image original, float angle)
         {
-            Bitmap rotatedImg = new Bitmap(this.originalPointerImage.Width, this.originalPointerImage.Height);
-            rotatedImg.SetResolution(this.originalPointerImage.HorizontalResolution, this.originalPointerImage.VerticalResolution);
+            Bitmap rotatedImg = new Bitmap(original.Width, original.Height);
+            rotatedImg.SetResolution(original.HorizontalResolution, original.VerticalResolution);
 
             Graphics g = Graphics.FromImage(rotatedImg);
             //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             //g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            g.TranslateTransform(this.originalPointerImage.Width / 2.0F, this.originalPointerImage.Height / 2.0F);
+            g.TranslateTransform(original.Width / 2.0F, original.Height / 2.0F);
             g.RotateTransform(angle);
-            g.TranslateTransform(-this.originalPointerImage.Width / 2.0F, -this.originalPointerImage.Height / 2.0F);
-            g.DrawImage(this.originalPointerImage, new PointF(0, 0));
+            g.TranslateTransform(-original.Width / 2.0F, -original.Height / 2.0F);
+            g.DrawImage(original, new PointF(0, 0));
 
-            this.PB_Pointer.BackgroundImage = rotatedImg;
+            return rotatedImg;
         }
     }
 }

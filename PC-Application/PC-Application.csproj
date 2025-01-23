@@ -99,5 +99,17 @@
   <ItemGroup>
     <None Include="StopControl.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Horn.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Lights.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Speedometer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Speedometer_Arrow.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace PC_Application
 {
@@ -23,7 +24,7 @@ namespace PC_Application
         private UInt16 port;
         private static TcpClient tcpClient;
         private static NetworkStream networkStream;
-        private Boolean connectionStatus;
+        public static Boolean connectionStatus;
         private SteeringWindow steeringWindow;
 
         public MainWindow()
@@ -37,7 +38,7 @@ namespace PC_Application
             this.steeringWindow = new SteeringWindow();
             this.steeringWindow.Hide();
 
-            this.connectionStatus = false;
+            MainWindow.connectionStatus = false;
         }
 
         private Boolean CheckIPAddress()
@@ -77,7 +78,7 @@ namespace PC_Application
                 byte[] data = Encoding.UTF8.GetBytes("LIGHTS");
                 networkStream.Write(data, 0, data.Length);
 
-                this.connectionStatus = true;
+                MainWindow.connectionStatus = true;
                 this.Button_Connect.Text = "Disconnect";
                 this.TB_IPAddress.Enabled = false;
                 this.TB_Port.Enabled = false;
@@ -95,7 +96,7 @@ namespace PC_Application
             networkStream?.Close();
             tcpClient?.Close();
 
-            this.connectionStatus = false;
+            MainWindow.connectionStatus = false;
             this.Button_Connect.Text = "Connect";
             this.TB_IPAddress.Enabled = true;
             this.TB_Port.Enabled = true;
@@ -105,7 +106,7 @@ namespace PC_Application
 
         private void Button_Connect_Click(object sender, EventArgs e)
         {
-            if (!this.connectionStatus)
+            if (!MainWindow.connectionStatus)
                 this.Connect();
 
             else this.Disconnect();
@@ -114,10 +115,24 @@ namespace PC_Application
 
         public static void SendCommand(String command)
         {
-            if (networkStream.CanWrite)
+            if (!MainWindow.connectionStatus)
+                return;
+
+            try
             {
-                byte[] data = Encoding.UTF8.GetBytes(command);
-                networkStream.Write(data, 0, data.Length);
+                if (networkStream.CanWrite)
+                {
+                    byte[] data = Encoding.UTF8.GetBytes(command);
+                    networkStream.Write(data, 0, data.Length);
+                }
+            }
+            catch (IOException ex)
+            {
+                MessageBox.Show("Błąd zapisu do strumienia: " + ex.Message);
+            }
+            catch (ObjectDisposedException ex)
+            {
+                MessageBox.Show("Strumień został zamknięty: " + ex.Message);
             }
         }
     }
