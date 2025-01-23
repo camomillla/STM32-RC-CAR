@@ -16,7 +16,8 @@ namespace PC_Application
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SteeringWindow());
+            Application.Run(new MainWindow());
+            //Application.Run(new SteeringWindow());
         }
     }
 }

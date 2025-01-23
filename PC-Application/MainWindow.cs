@@ -74,10 +74,6 @@ namespace PC_Application
                 tcpClient = new TcpClient();
                 tcpClient.Connect(this.ipAddress, this.port);
 
-                networkStream = tcpClient.GetStream();
-                byte[] data = Encoding.UTF8.GetBytes("LIGHTS");
-                networkStream.Write(data, 0, data.Length);
-
                 MainWindow.connectionStatus = true;
                 this.Button_Connect.Text = "Disconnect";
                 this.TB_IPAddress.Enabled = false;
@@ -113,17 +109,19 @@ namespace PC_Application
             
         }
 
-        public static void SendCommand(String command)
+        public static async void SendCommand(String command)
         {
             if (!MainWindow.connectionStatus)
                 return;
 
             try
             {
+                networkStream = tcpClient.GetStream();
                 if (networkStream.CanWrite)
-                {
+                {                    
                     byte[] data = Encoding.UTF8.GetBytes(command);
                     networkStream.Write(data, 0, data.Length);
+                    await Task.Delay(50);
                 }
             }
             catch (IOException ex)

@@ -11,8 +11,8 @@
 ../Core/Src/main.c:215:6:HAL_TIM_PeriodElapsedCallback	16	static
 ../Core/Src/main.c:226:6:Set_PWM_Frequency	32	static
 ../Core/Src/main.c:242:6:ATC_ReceiveCallback	16	static
-../Core/Src/main.c:248:6:ProcessCommand	24	static
-../Core/Src/main.c:307:6:ProcessIncomingData	32	static
-../Core/Src/main.c:341:5:main	24	static
-../Core/Src/main.c:429:6:SystemClock_Config	88	static
-../Core/Src/main.c:490:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:250:6:ProcessCommand	24	static
+../Core/Src/main.c:327:6:ProcessIncomingData	32	static
+../Core/Src/main.c:363:5:main	24	static
+../Core/Src/main.c:450:6:SystemClock_Config	88	static
+../Core/Src/main.c:511:6:Error_Handler	4	static,ignoring_inline_asm

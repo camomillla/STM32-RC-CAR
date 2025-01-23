@@ -111,5 +111,11 @@
   <ItemGroup>
     <None Include="Speedometer_Arrow.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="CarKey.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Ignition.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
