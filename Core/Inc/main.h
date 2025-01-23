@@ -81,6 +81,8 @@ void Error_Handler(void);
 #define RMII_RXD1_GPIO_Port GPIOC
 #define LD1_Pin GPIO_PIN_0
 #define LD1_GPIO_Port GPIOB
+#define LIGHTS_Pin GPIO_PIN_0
+#define LIGHTS_GPIO_Port GPIOG
 #define ENCODER_LF1_Pin GPIO_PIN_9
 #define ENCODER_LF1_GPIO_Port GPIOE
 #define ENCODER_LF2_Pin GPIO_PIN_11

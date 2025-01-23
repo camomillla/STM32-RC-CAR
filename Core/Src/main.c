@@ -223,10 +223,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 /*=================================*/
 
-#define RX_TIMEOUT 1000 // Timeout 1 sekunda
-#define TX_TIMEOUT 1000 // Timeout wysyłania
-char* response = NULL;  // Bufor na odpowiedź
-
 void Set_PWM_Frequency(uint32_t frequency) {
     if (frequency == 0) {
         HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2); // Zatrzymanie PWM
@@ -241,6 +237,49 @@ void Set_PWM_Frequency(uint32_t frequency) {
     __HAL_TIM_SET_COMPARE(&htim12, TIM_CHANNEL_2, period / 2); // Wypełnienie 50%
     HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2); // Start PWM
 }
+
+// Funkcja callback obsługująca przychodzące dane
+void ATC_ReceiveCallback(const char *data) {
+    // Wyślij dane na UART3, aby były widoczne w terminalu
+    HAL_UART_Transmit(&huart3, (uint8_t *)data, strlen(data), HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY);  // Dodaj nową linię
+}
+
+void ProcessCommand(uint8_t* cmd) {
+	if (strcmp((char*)cmd, "LIGHTS") == 0) {
+		//HAL_GPIO_TogglePin(LIGHTS_GPIO_Port, LIGHTS_Pin);
+		HAL_GPIO_TogglePin(LIGHTS_GPIO_Port, LIGHTS_Pin);
+	} else HAL_UART_Transmit(&huart3, (uint8_t *)"Unknown command\r\n", 17, HAL_MAX_DELAY);
+}
+
+// Funkcja obsługująca przetwarzanie danych przychodzących przez ESP
+void ProcessIncomingData() {
+	char *response = NULL; // Wskaźnik na odebrane dane
+	    while (1) {
+	        // Oczekiwanie na odpowiedź zawierającą +IPD
+	        int result = ATC_Receive(&ESP, &response, 5000, 1, "+IPD,");
+	        if (result > 0 && response != NULL) {
+	            // Przetwarzanie odpowiedzi zawierającej +IPD
+	            char *ipdStart = strstr(response, "+IPD,");
+	            if (ipdStart != NULL) {
+	                // Znajdź początek danych (po dwukropku ':')
+	                char *dataStart = strchr(ipdStart, ':');
+	                if (dataStart != NULL) {
+	                    dataStart++; // Przesuń za dwukropek, aby przejść do danych
+	                    // Wyślij dane na UART3
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)dataStart, strlen(dataStart), HAL_MAX_DELAY);
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY); // Nowa linia dla przejrzystości
+	                    ProcessCommand((uint8_t *)dataStart);
+	                }
+	            }
+	            ATC_RxFlush(&ESP); // Wyczyść bufor dla nowych danych
+	        }
+
+	        // Wywołanie głównej pętli ATC
+	        ATC_Loop(&ESP);
+	    }
+}
+
 
 /* USER CODE END 0 */
 
@@ -291,12 +330,16 @@ int main(void)
   ATC_SendReceive(&ESP, "AT\r\n", 1000, NULL, 1000, 0);
   ATC_SendReceive(&ESP, "AT+CWMODE=1\r\n", 1000, NULL, 1000, 0);
   ATC_SendReceive(&ESP, "AT+CIPMUX=1\r\n", 1000, NULL, 1000, 0);
+  ATC_SendReceive(&ESP, "AT+CIPMODE=1\r\n", 1000, NULL, 1000, 0);
   ATC_SendReceive(&ESP, "AT+CIPSERVER=1,80\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&ESP, "AT+CWJAP=\"DeathLock\",\"\"\r\n", 5000, NULL, 5000, 0);
+  ATC_SendReceive(&ESP, "AT+CWJAP=\"DeathLock\",\"\"\r\n", 10000, NULL, 10000, 0);
 
+  const char *readyMsg = "STM32 ready to receive data from ESP...\r\n";
+  HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
 
+  ProcessIncomingData();
 
-
+/*
   HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
@@ -311,8 +354,7 @@ int main(void)
   motor_init(&motorA, &htim4);
   pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
 
-  const char *readyMsg = "STM32 ready to receive data from ESP...\r\n";
-      HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
+
 
   int speed_table[] = {0, 50, 100, 50};
   int i = 0;
@@ -328,7 +370,7 @@ int main(void)
   uint8_t items = 0;
 
   //HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
-  int x = 0;Set_PWM_Frequency(1000); // A4 - 440 Hz
+  int x = 0;Set_PWM_Frequency(1000); // A4 - 440 Hz*/
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -345,12 +387,12 @@ int main(void)
 	  //sprintf(buffer, "%lu\r\n", htim1.Instance->CNT);
 	  //HAL_UART_Transmit(&huart3, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
 	  //HAL_Delay(100);
-	  if ((HAL_GetTick() - time_tick) > max_time) {
+	  /*if ((HAL_GetTick() - time_tick) > max_time) {
 		  time_tick = HAL_GetTick();
 		  motor_set_speed(&motorA, speed_table[i++]);
 
 		  i %=4;
-	  }
+	  }*/
   }
   /* USER CODE END 3 */
 }
