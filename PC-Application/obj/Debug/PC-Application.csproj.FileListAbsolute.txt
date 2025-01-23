@@ -8,3 +8,4 @@ E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.csproj.Gene
 E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.csproj.CoreCompileInputs.cache
 E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.exe
 E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.pdb
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC_Application.SteeringWindow.resources

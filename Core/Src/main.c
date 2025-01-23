@@ -118,7 +118,7 @@ int pid_calculate(PID *pid_data, int setpoint, int process_variable)
 
 #define MOTOR_A_Kp					3
 #define MOTOR_A_Ki					0.05
-#define MOTOR_A_Kd					1.05
+#define MOTOR_A_Kd					0.05
 #define MOTOR_A_ANTI_WINDUP			1
 
 #define ENCODER_RESOLUTION			3
@@ -246,10 +246,61 @@ void ATC_ReceiveCallback(const char *data) {
 }
 
 void ProcessCommand(uint8_t* cmd) {
-	if (strcmp((char*)cmd, "LIGHTS") == 0) {
-		//HAL_GPIO_TogglePin(LIGHTS_GPIO_Port, LIGHTS_Pin);
-		HAL_GPIO_TogglePin(LIGHTS_GPIO_Port, LIGHTS_Pin);
-	} else HAL_UART_Transmit(&huart3, (uint8_t *)"Unknown command\r\n", 17, HAL_MAX_DELAY);
+	// Sprawdź, czy komenda to LIGHTS
+	    if (strcmp((char*)cmd, "LIGHTS") == 0) {
+	        HAL_GPIO_TogglePin(LIGHTS_GPIO_Port, LIGHTS_Pin);
+	    }
+	    // Obsługa komend MOTORX
+	    else if (strncmp((char*)cmd, "MOTOR", 5) == 0) { // Sprawdź, czy zaczyna się od "MOTOR"
+	        char* modeStr = (char*)cmd + 5; // Wskaźnik na część po "MOTOR"
+	        int mode = atoi(modeStr);       // Zamiana cyfry trybu na liczbę całkowitą
+
+	        if (mode >= 0 && mode <= 8) {   // Sprawdzenie, czy tryb mieści się w zakresie 0-8
+	            switch (mode) {
+	                case 0:
+	                    // Operacja dla MOTOR0
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR0 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, 0);
+	                    break;
+	                case 1:
+	                    // Operacja dla MOTOR1
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR1 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, 100);
+	                    break;
+	                case 2:
+	                    // Operacja dla MOTOR2
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR2 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, 75);
+	                    break;
+	                case 3:
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR3 selected\r\n", 18, HAL_MAX_DELAY);
+	                    break;
+	                case 4:
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR4 selected\r\n", 18, HAL_MAX_DELAY);
+	                    break;
+	                case 5:
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR5 selected\r\n", 18, HAL_MAX_DELAY);
+	                    break;
+	                case 6:
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR6 selected\r\n", 18, HAL_MAX_DELAY);
+	                    break;
+	                case 7:
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR7 selected\r\n", 18, HAL_MAX_DELAY);
+	                    break;
+	                case 8:
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR8 selected\r\n", 18, HAL_MAX_DELAY);
+	                    break;
+	                default:
+	                    break; // Nie powinno wystąpić
+	            }
+	        } else {
+	            HAL_UART_Transmit(&huart3, (uint8_t *)"Invalid MOTOR mode\r\n", 21, HAL_MAX_DELAY);
+	        }
+	    }
+	    // Nieznana komenda
+	    else {
+	        HAL_UART_Transmit(&huart3, (uint8_t *)"Unknown command\r\n", 17, HAL_MAX_DELAY);
+	    }
 }
 
 // Funkcja obsługująca przetwarzanie danych przychodzących przez ESP
@@ -337,9 +388,8 @@ int main(void)
   const char *readyMsg = "STM32 ready to receive data from ESP...\r\n";
   HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
 
-  ProcessIncomingData();
 
-/*
+
   HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
@@ -353,24 +403,12 @@ int main(void)
   drv8835_init();
   motor_init(&motorA, &htim4);
   pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
+  ProcessIncomingData();
 
-
-
-  int speed_table[] = {0, 50, 100, 50};
-  int i = 0;
-  uint32_t time_tick = HAL_GetTick();
-  uint32_t max_time = 5000;
-  //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 500);
-  //__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 500);
-  //char buffer[32];
-
-  char* response = NULL;
-  int result = -1;
-  uint32_t timeout = 5000;
-  uint8_t items = 0;
 
   //HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
-  int x = 0;Set_PWM_Frequency(1000); // A4 - 440 Hz*/
+  //Set_PWM_Frequency(1000); // BUZZER
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -380,19 +418,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-
-
-	  //ATC_Loop(&ESP);
-	  //sprintf(buffer, "%lu\r\n", htim1.Instance->CNT);
-	  //HAL_UART_Transmit(&huart3, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
-	  //HAL_Delay(100);
-	  /*if ((HAL_GetTick() - time_tick) > max_time) {
-		  time_tick = HAL_GetTick();
-		  motor_set_speed(&motorA, speed_table[i++]);
-
-		  i %=4;
-	  }*/
   }
   /* USER CODE END 3 */
 }
