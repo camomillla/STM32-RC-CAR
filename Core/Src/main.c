@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
@@ -31,7 +30,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "atc.h"
-#include "FreeRTOS.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,7 +56,6 @@ int resp = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -248,11 +245,25 @@ void ATC_ReceiveCallback(const char *data) {
     HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY);  // Dodaj nową linię
 }
 
+int hornOn = 0;
+
 void ProcessCommand(uint8_t* cmd) {
 	// Sprawdź, czy komenda to LIGHTS
 	    if (strcmp((char*)cmd, "LIGHTS") == 0) {
 	        HAL_GPIO_TogglePin(LIGHTS_GPIO_Port, LIGHTS_Pin);
 	    }
+
+	    else if (strcmp((char*)cmd, "HORN") == 0) {
+	    	if (!hornOn) {
+		    	Set_PWM_Frequency(1000);
+		    	hornOn = 1;
+	    	}
+	    	else {
+	    		Set_PWM_Frequency(0);
+	    		hornOn = 0;
+	    	}
+	    }
+
 	    // Obsługa komend MOTORX
 	    else if (strncmp((char*)cmd, "MOTOR", 5) == 0) { // Sprawdź, czy zaczyna się od "MOTOR"
 	        char* modeStr = (char*)cmd + 5; // Wskaźnik na część po "MOTOR"
@@ -266,31 +277,37 @@ void ProcessCommand(uint8_t* cmd) {
 	                    motor_set_speed(&motorA, 0);
 	                    break;
 	                case 1:
-	                    // Operacja dla MOTOR1
+	                    // Operacja dla MOTORF
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR1 selected\r\n", 18, HAL_MAX_DELAY);
 	                    motor_set_speed(&motorA, 100);
 	                    break;
 	                case 2:
-	                    // Operacja dla MOTOR2
+	                    // Operacja dla MOTORFR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR2 selected\r\n", 18, HAL_MAX_DELAY);
 	                    motor_set_speed(&motorA, 75);
 	                    break;
 	                case 3:
+	                    // Operacja dla MOTORR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR3 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
 	                case 4:
+	                    // Operacja dla MOTORBR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR4 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
 	                case 5:
+	                    // Operacja dla MOTORB
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR5 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
 	                case 6:
+	                    // Operacja dla MOTORBL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR6 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
 	                case 7:
+	                    // Operacja dla MOTORL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR7 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
 	                case 8:
+	                    // Operacja dla MOTORFL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR8 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
 	                default:
@@ -307,7 +324,7 @@ void ProcessCommand(uint8_t* cmd) {
 }
 
 // Funkcja obsługująca przetwarzanie danych przychodzących przez ESP
-void ProcessIncomingData(void* argument) {
+void ProcessIncomingData() {
 	char *response = NULL; // Wskaźnik na odebrane dane
 	    while (1) {
 	        // Oczekiwanie na odpowiedź zawierającą +IPD
@@ -331,34 +348,9 @@ void ProcessIncomingData(void* argument) {
 
 	        // Wywołanie głównej pętli ATC
 	        ATC_Loop(&ESP);
-	        osDelay(50);
 	    }
 }
 
-void ProcessHeartBeat(void* argument) {
-    const char *heartbeatMessage = "HB\r\n"; // Treść wiadomości
-    const uint8_t channel = 0; // Kanał komunikacji (dla CIPMUX=1)
-    const int timeout = 1000; // Timeout na odpowiedź
-    char command[32];
-
-    while (1) {
-        // Przygotuj komendę AT do wysłania danych
-        sprintf(command, "AT+CIPSEND=%d,%d\r\n", channel, strlen(heartbeatMessage) - 2);
-
-        // Wyślij komendę otwierającą wysyłkę danych
-        ATC_Send(&ESP, command, timeout);
-        osDelay(100); // Krótka przerwa na przetworzenie
-
-        // Wyślij faktyczną wiadomość
-        ATC_Send(&ESP, heartbeatMessage, timeout);
-
-        // Wywołanie głównej pętli ATC
-        ATC_Loop(&ESP);
-
-        // Odczekaj 1 sekundę
-        osDelay(900);
-    }
-}
 
 
 
@@ -418,8 +410,6 @@ int main(void)
   const char *readyMsg = "STM32 ready to receive data from ESP...\r\n";
   HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
 
-
-
   HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
   HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
@@ -430,26 +420,17 @@ int main(void)
 
   HAL_TIM_Base_Start_IT(&htim6);
 
+  HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+
   drv8835_init();
   motor_init(&motorA, &htim4);
   pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
+  ProcessIncomingData();
 
 
-  //HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
   //Set_PWM_Frequency(1000); // BUZZER
 
   /* USER CODE END 2 */
-
-  /* Init scheduler */
-  osKernelInitialize();
-
-  /* Call init function for freertos objects (in cmsis_os2.c) */
-  MX_FREERTOS_Init();
-
-  /* Start scheduler */
-  osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */

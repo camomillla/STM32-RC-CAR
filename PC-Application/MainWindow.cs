@@ -14,7 +14,6 @@ using System.Windows.Input;
 using System.Text.RegularExpressions;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using System.Net.Http;
 
 namespace PC_Application
 {
@@ -74,8 +73,6 @@ namespace PC_Application
             {
                 tcpClient = new TcpClient();
                 tcpClient.Connect(this.ipAddress, this.port);
-                networkStream = tcpClient.GetStream();
-                Task.Run(() => ReceiveDataAsync());
 
                 MainWindow.connectionStatus = true;
                 this.Button_Connect.Text = "Disconnect";
@@ -93,7 +90,6 @@ namespace PC_Application
         private void Disconnect()
         {
             networkStream?.Close();
-            networkStream = null;
             tcpClient?.Close();
 
             MainWindow.connectionStatus = false;
@@ -113,17 +109,19 @@ namespace PC_Application
             
         }
 
-        public static void SendCommand(String command)
+        public static async void SendCommand(String command)
         {
             if (!MainWindow.connectionStatus)
                 return;
 
             try
             {
+                networkStream = tcpClient.GetStream();
                 if (networkStream.CanWrite)
-                {
+                {                    
                     byte[] data = Encoding.UTF8.GetBytes(command);
                     networkStream.Write(data, 0, data.Length);
+                    await Task.Delay(50);
                 }
             }
             catch (IOException ex)
@@ -133,53 +131,6 @@ namespace PC_Application
             catch (ObjectDisposedException ex)
             {
                 MessageBox.Show("Strumień został zamknięty: " + ex.Message);
-            }
-        }
-
-        public async Task ReceiveDataAsync()
-        {
-            try
-            {
-
-                if (tcpClient == null || !tcpClient.Connected)
-                {
-                    Console.WriteLine("Klient nie jest połączony.");
-                    return;
-                }
-
-                NetworkStream stream = tcpClient.GetStream();
-
-                // Bufor do odbioru danych
-                byte[] buffer = new byte[1024];
-
-                while (tcpClient.Connected)
-                {
-                    // Oczekiwanie na dane
-                    int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                    if (bytesRead > 0)
-                    {
-                        // Konwersja danych na string
-                        string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-                        // Wyświetlenie lub dalsze przetwarzanie danych
-                        Console.WriteLine($"Odebrano: {receivedData}");
-                    }
-                    else
-                    {
-                        // Jeśli odczyt zwraca 0, oznacza to, że połączenie zostało zamknięte
-                        Console.WriteLine("Połączenie zamknięte przez klienta.");
-                        break;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Błąd podczas odbierania danych: {ex.Message}");
-            }
-            finally
-            {
-                Disconnect();
-                Console.WriteLine("Połączenie zamknięte.");
             }
         }
     }

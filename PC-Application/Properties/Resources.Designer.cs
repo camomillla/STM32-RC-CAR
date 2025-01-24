@@ -63,9 +63,29 @@ namespace PC_Application.Properties {
         /// <summary>
         ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap CarKey {
+            get {
+                object obj = ResourceManager.GetObject("CarKey", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Horn {
             get {
                 object obj = ResourceManager.GetObject("Horn", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Wyszukuje zlokalizowany zasób typu System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Ignition {
+            get {
+                object obj = ResourceManager.GetObject("Ignition", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
