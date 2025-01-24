@@ -28,64 +28,44 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.PB_Ignition = new System.Windows.Forms.PictureBox();
             this.PB_Lights = new System.Windows.Forms.PictureBox();
             this.PB_Horn = new System.Windows.Forms.PictureBox();
             this.PB_Speedometer_Arrow = new System.Windows.Forms.PictureBox();
             this.PB_Speedometer_Back = new System.Windows.Forms.PictureBox();
             this.PB_Pointer = new System.Windows.Forms.PictureBox();
-            this.PB_CarKey = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.PB_Ignition)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Lights)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Horn)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Speedometer_Arrow)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Speedometer_Back)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Pointer)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PB_CarKey)).BeginInit();
             this.SuspendLayout();
-            // 
-            // PB_Ignition
-            // 
-            this.PB_Ignition.BackColor = System.Drawing.Color.Transparent;
-            this.PB_Ignition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.PB_Ignition.Image = global::PC_Application.Properties.Resources.Ignition;
-            this.PB_Ignition.Location = new System.Drawing.Point(632, 140);
-            this.PB_Ignition.Name = "PB_Ignition";
-            this.PB_Ignition.Size = new System.Drawing.Size(128, 128);
-            this.PB_Ignition.TabIndex = 8;
-            this.PB_Ignition.TabStop = false;
             // 
             // PB_Lights
             // 
-            this.PB_Lights.BackColor = System.Drawing.Color.Transparent;
             this.PB_Lights.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Lights.Image = global::PC_Application.Properties.Resources.Lights;
-            this.PB_Lights.Location = new System.Drawing.Point(632, 281);
+            this.PB_Lights.Location = new System.Drawing.Point(16, 281);
             this.PB_Lights.Name = "PB_Lights";
             this.PB_Lights.Size = new System.Drawing.Size(128, 128);
             this.PB_Lights.TabIndex = 7;
             this.PB_Lights.TabStop = false;
-            this.PB_Lights.Click += new System.EventHandler(this.PB_Lights_Click);
             // 
             // PB_Horn
             // 
-            this.PB_Horn.BackColor = System.Drawing.Color.Transparent;
             this.PB_Horn.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Horn.Image = global::PC_Application.Properties.Resources.Horn;
-            this.PB_Horn.Location = new System.Drawing.Point(632, 409);
+            this.PB_Horn.Location = new System.Drawing.Point(16, 409);
             this.PB_Horn.Name = "PB_Horn";
             this.PB_Horn.Size = new System.Drawing.Size(128, 128);
             this.PB_Horn.TabIndex = 6;
             this.PB_Horn.TabStop = false;
-            this.PB_Horn.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PB_Horn_MouseDown);
-            this.PB_Horn.MouseUp += new System.Windows.Forms.MouseEventHandler(this.PB_Horn_MouseUp);
             // 
             // PB_Speedometer_Arrow
             // 
             this.PB_Speedometer_Arrow.BackColor = System.Drawing.Color.Transparent;
             this.PB_Speedometer_Arrow.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.PB_Speedometer_Arrow.Image = global::PC_Application.Properties.Resources.Speedometer_Arrow;
-            this.PB_Speedometer_Arrow.Location = new System.Drawing.Point(370, 12);
+            this.PB_Speedometer_Arrow.Location = new System.Drawing.Point(150, 12);
             this.PB_Speedometer_Arrow.Name = "PB_Speedometer_Arrow";
             this.PB_Speedometer_Arrow.Size = new System.Drawing.Size(256, 256);
             this.PB_Speedometer_Arrow.TabIndex = 5;
@@ -96,7 +76,7 @@
             this.PB_Speedometer_Back.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.PB_Speedometer_Back.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Speedometer_Back.Image = global::PC_Application.Properties.Resources.Speedometer;
-            this.PB_Speedometer_Back.Location = new System.Drawing.Point(370, 12);
+            this.PB_Speedometer_Back.Location = new System.Drawing.Point(150, 12);
             this.PB_Speedometer_Back.Name = "PB_Speedometer_Back";
             this.PB_Speedometer_Back.Size = new System.Drawing.Size(256, 256);
             this.PB_Speedometer_Back.TabIndex = 4;
@@ -108,21 +88,11 @@
             this.PB_Pointer.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.PB_Pointer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Pointer.Image = global::PC_Application.Properties.Resources.Pointer;
-            this.PB_Pointer.Location = new System.Drawing.Point(370, 281);
+            this.PB_Pointer.Location = new System.Drawing.Point(150, 281);
             this.PB_Pointer.Name = "PB_Pointer";
             this.PB_Pointer.Size = new System.Drawing.Size(256, 256);
             this.PB_Pointer.TabIndex = 1;
             this.PB_Pointer.TabStop = false;
-            // 
-            // PB_CarKey
-            // 
-            this.PB_CarKey.BackColor = System.Drawing.Color.Transparent;
-            this.PB_CarKey.Image = global::PC_Application.Properties.Resources.CarKey;
-            this.PB_CarKey.Location = new System.Drawing.Point(632, 140);
-            this.PB_CarKey.Name = "PB_CarKey";
-            this.PB_CarKey.Size = new System.Drawing.Size(128, 128);
-            this.PB_CarKey.TabIndex = 9;
-            this.PB_CarKey.TabStop = false;
             // 
             // SteeringWindow
             // 
@@ -130,8 +100,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(772, 549);
             this.ControlBox = false;
-            this.Controls.Add(this.PB_CarKey);
-            this.Controls.Add(this.PB_Ignition);
             this.Controls.Add(this.PB_Lights);
             this.Controls.Add(this.PB_Horn);
             this.Controls.Add(this.PB_Speedometer_Arrow);
@@ -145,13 +113,11 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SteeringWindow";
-            ((System.ComponentModel.ISupportInitialize)(this.PB_Ignition)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Lights)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Horn)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Speedometer_Arrow)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Speedometer_Back)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Pointer)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PB_CarKey)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -163,7 +129,5 @@
         private System.Windows.Forms.PictureBox PB_Speedometer_Arrow;
         private System.Windows.Forms.PictureBox PB_Horn;
         private System.Windows.Forms.PictureBox PB_Lights;
-        private System.Windows.Forms.PictureBox PB_Ignition;
-        private System.Windows.Forms.PictureBox PB_CarKey;
     }
 }
