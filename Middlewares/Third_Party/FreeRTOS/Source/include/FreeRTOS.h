@@ -35,6 +35,7 @@
 
 	void ProcessIncomingData(void*);
 	void ProcessHeartBeat(void*);
+	void TESTSCENARIO(void*);
 /*
  * If stdint.h cannot be located then:
  *   + If using GCC ensure the -nostdint options is *not* being used.

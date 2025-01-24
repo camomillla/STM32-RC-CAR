@@ -73,12 +73,12 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 
 typedef struct
 {
-	int previous_error; 		//Poprzedni błąd dla członu różniczkującego
-	int total_error;		//Suma uchybów dla członu całkującego
-	float Kp;			//Wzmocnienie członu proporcjonalnego
-	float Ki;			//Wzmocnienie członu całkującego*/
-	float Kd;			//Wzmocnienie członu różniczkującego*/
-	int anti_windup_limit;		//Anti-Windup - ograniczenie członu całkującego*/
+	int previous_error;
+	int total_error;
+	float Kp;
+	float Ki;
+	float Kd;
+	int anti_windup_limit;
 } PID;
 
 void pid_init(PID *pid_data, float kp_init, float ki_init, float kd_init, int anti_windup_limit_init)
@@ -104,19 +104,19 @@ int pid_calculate(PID *pid_data, int setpoint, int process_variable)
 	int error;
 	float p_term, i_term, d_term;
 
-	error = setpoint - process_variable;		//obliczenie uchybu
-	pid_data->total_error += error;			//sumowanie uchybu
+	error = setpoint - process_variable;
+	pid_data->total_error += error;
 
-	p_term = (float)(pid_data->Kp * error);		//odpowiedź członu proporcjonalnego
-	i_term = (float)(pid_data->Ki * pid_data->total_error);	//odpowiedź członu całkującego
-	d_term = (float)(pid_data->Kd * (error - pid_data->previous_error));//odpowiedź członu różniczkującego
+	p_term = (float)(pid_data->Kp * error);
+	i_term = (float)(pid_data->Ki * pid_data->total_error);
+	d_term = (float)(pid_data->Kd * (error - pid_data->previous_error));
 
-	if(i_term >= pid_data->anti_windup_limit) i_term = pid_data->anti_windup_limit;	//Anti-Windup - ograniczenie odpowiedzi członu całkującego
+	if(i_term >= pid_data->anti_windup_limit) i_term = pid_data->anti_windup_limit;
 	else if(i_term <= -pid_data->anti_windup_limit) i_term = -pid_data->anti_windup_limit;
 
-	pid_data->previous_error = error;	//aktualizacja zmiennej z poprzednią wartością błędu
+	pid_data->previous_error = error;
 
-	return (int)(p_term + i_term + d_term);		//odpowiedź regulatora
+	return (int)(p_term + i_term + d_term);
 }
 
 #define MOTOR_A_Kp					3
@@ -133,15 +133,15 @@ int pid_calculate(PID *pid_data, int setpoint, int process_variable)
 
 typedef struct
 {
-	TIM_HandleTypeDef *timer;	//timer obsługujący enkoder silnika
+	TIM_HandleTypeDef *timer;
 
-	uint16_t resolution;		//rozdzielczość silnika
+	uint16_t resolution;
 
-	int pulse_count;		//zliczone impulsy
-	int measured_speed;		//obliczona prędkość silnika
-	int set_speed;			//zadana prędkość silnika
+	int pulse_count;
+	int measured_speed;
+	int set_speed;
 
-	int actual_PWM;			//wartość PWM
+	int actual_PWM;
 
 	PID pid_controller;
 } MOTOR;
@@ -171,17 +171,10 @@ void motor_calculate_speed(MOTOR *m)
 
 	if(m->actual_PWM >= 0)
 	{
-		//drv8835_set_motorA_direction(CW);
 		drv8835_set_motorA_speed(m->actual_PWM);
-		//__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, m->actual_PWM);
-		//__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, 500);
 
 	}
-	else
-	{
-		//drv8835_set_motorA_direction(CCW);
-		//drv8835_set_motorA_speed(-m->actual_PWM);
-	}
+
 }
 
 void motor_update_count(MOTOR *m)
@@ -208,8 +201,6 @@ void drv8835_set_motorA_speed(uint16_t speed)
 
 void drv8835_init()
 {
-	//drv8835_mode_control(Phase_Enable_Mode);
-	//drv8835_set_motorA_direction(CCW);
 	drv8835_set_motorA_speed(0);
 
 	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
@@ -228,30 +219,29 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 void Set_PWM_Frequency(uint32_t frequency) {
     if (frequency == 0) {
-        HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2); // Zatrzymanie PWM
+        HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
         return;
     }
 
-    uint32_t timer_clock = 96000000; // 96 MHz zegar bazowy
+    uint32_t timer_clock = 96000000;
     uint32_t prescaler = htim12.Init.Prescaler + 1;
     uint32_t period = (timer_clock / (prescaler * frequency)) - 1;
 
     __HAL_TIM_SET_AUTORELOAD(&htim2, period);
-    __HAL_TIM_SET_COMPARE(&htim12, TIM_CHANNEL_2, period / 2); // Wypełnienie 50%
-    HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2); // Start PWM
+    __HAL_TIM_SET_COMPARE(&htim12, TIM_CHANNEL_2, period / 2);
+    HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
 }
 
-// Funkcja callback obsługująca przychodzące dane
 void ATC_ReceiveCallback(const char *data) {
-    // Wyślij dane na UART3, aby były widoczne w terminalu
+
     HAL_UART_Transmit(&huart3, (uint8_t *)data, strlen(data), HAL_MAX_DELAY);
-    HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY);  // Dodaj nową linię
+    HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY);
 }
 
 int hornOn = 0;
 
 void ProcessCommand(uint8_t* cmd) {
-	// Sprawdź, czy komenda to LIGHTS
+
 	    if (strcmp((char*)cmd, "LIGHTS") == 0) {
 	        HAL_GPIO_TogglePin(LIGHTS_GPIO_Port, LIGHTS_Pin);
 	    }
@@ -267,12 +257,11 @@ void ProcessCommand(uint8_t* cmd) {
 	    	}
 	    }
 
-	    // Obsługa komend MOTORX
-	    else if (strncmp((char*)cmd, "MOTOR", 5) == 0) { // Sprawdź, czy zaczyna się od "MOTOR"
-	        char* modeStr = (char*)cmd + 5; // Wskaźnik na część po "MOTOR"
-	        int mode = atoi(modeStr);       // Zamiana cyfry trybu na liczbę całkowitą
+	    else if (strncmp((char*)cmd, "MOTOR", 5) == 0) {
+	        char* modeStr = (char*)cmd + 5;
+	        int mode = atoi(modeStr);
 
-	        if (mode >= 0 && mode <= 8) {   // Sprawdzenie, czy tryb mieści się w zakresie 0-8
+	        if (mode >= 0 && mode <= 8) {
 	            switch (mode) {
 	                case 0:
 	                    // Operacja dla MOTOR0
@@ -314,42 +303,40 @@ void ProcessCommand(uint8_t* cmd) {
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR8 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
 	                default:
-	                    break; // Nie powinno wystąpić
+	                    break;
 	            }
 	        } else {
 	            HAL_UART_Transmit(&huart3, (uint8_t *)"Invalid MOTOR mode\r\n", 21, HAL_MAX_DELAY);
 	        }
 	    }
-	    // Nieznana komenda
+
 	    else {
 	        HAL_UART_Transmit(&huart3, (uint8_t *)"Unknown command\r\n", 17, HAL_MAX_DELAY);
 	    }
 }
 
-// Funkcja obsługująca przetwarzanie danych przychodzących przez ESP
 void ProcessIncomingData(void* argument) {
-	char *response = NULL; // Wskaźnik na odebrane dane
+	char *response = NULL;
 	    while (1) {
-	        // Oczekiwanie na odpowiedź zawierającą +IPD
+
 	        int result = ATC_Receive(&ESP, &response, 5000, 1, "+IPD,");
 	        if (result > 0 && response != NULL) {
-	            // Przetwarzanie odpowiedzi zawierającej +IPD
+
 	            char *ipdStart = strstr(response, "+IPD,");
 	            if (ipdStart != NULL) {
-	                // Znajdź początek danych (po dwukropku ':')
+
 	                char *dataStart = strchr(ipdStart, ':');
 	                if (dataStart != NULL) {
-	                    dataStart++; // Przesuń za dwukropek, aby przejść do danych
-	                    // Wyślij dane na UART3
+	                    dataStart++;
+
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)dataStart, strlen(dataStart), HAL_MAX_DELAY);
-	                    HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY); // Nowa linia dla przejrzystości
+	                    HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY);
 	                    ProcessCommand((uint8_t *)dataStart);
 	                }
 	            }
-	            ATC_RxFlush(&ESP); // Wyczyść bufor dla nowych danych
+	            ATC_RxFlush(&ESP);
 	        }
 
-	        // Wywołanie głównej pętli ATC
 	        ATC_Loop(&ESP);
 	        osDelay(50);
 	    }
@@ -358,7 +345,7 @@ void ProcessIncomingData(void* argument) {
 void ProcessHeartBeat(void* argument) {
     char heartbeatMessage[32];
     const uint8_t channel = 0;
-    const int timeout = 5000; // Zwiększony timeout
+    const int timeout = 5000;
     int lastSpeed = 0;
 
     while (1) {
@@ -368,42 +355,36 @@ void ProcessHeartBeat(void* argument) {
 
     	lastSpeed = motorA.measured_speed;
 
-        // Przygotowanie wiadomości heartbeat
         sprintf(heartbeatMessage, "HB:%d\r\n", motorA.measured_speed);
         char command[32];
         sprintf(command, "AT+CIPSEND=%d,%d\r\n", channel, strlen(heartbeatMessage));
 
-        // Wysłanie komendy AT+CIPSEND
         if (ATC_Send(&ESP, command, timeout)) {
-            // Czekaj na odpowiedź z ESP, że jest gotowe na wysyłanie
-            osDelay(50);  // Możesz dostosować ten czas, aby dostosować do opóźnienia
+            osDelay(50);
 
-            // Wysłanie samego heartbeat
             if (!ATC_Send(&ESP, heartbeatMessage, timeout)) {
-                // Obsługa błędu wysyłania
                 printf("Błąd wysyłania heartbeat\n");
             }
         } else {
-            // Obsługa błędu komendy AT+CIPSEND
             printf("Błąd komendy AT+CIPSEND\n");
         }
 
-        // Wywołanie głównej pętli ATC, aby upewnić się, że ESP działa poprawnie
         ATC_Loop(&ESP);
 
-        // Odczekaj odpowiedni czas przed następnym wysłaniem
-        osDelay(500); // Skrócenie lub zwiększenie opóźnienia, zależnie od potrzeb
+        osDelay(500);
     }
 }
 
-void TESTSCENARIO() {
+void TESTSCENARIO(void*) {
 
-	int speed = 0;
+	while(1){
+		if (HAL_GPIO_ReadPin(USER_Btn_GPIO_Port, USER_Btn_Pin))
+			break;
+	}
 
 	while(1) {
-
 		motor_set_speed(&motorA, rand() % 100);
-		HAL_Delay(5000);
+		osDelay(5000);
 	}
 }
 
@@ -479,7 +460,6 @@ int main(void)
   drv8835_init();
   motor_init(&motorA, &htim4);
   pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
-  TESTSCENARIO();
 
   //Set_PWM_Frequency(1000); // BUZZER
 
