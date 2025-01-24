@@ -20,11 +20,12 @@ namespace PC_Application
     public partial class MainWindow : Form
     {
 
-        private String ipAddress;
-        private UInt16 port;
+        private static String ipAddress;
+        private static UInt16 port;
         private static TcpClient tcpClient;
         private static NetworkStream networkStream;
         public static Boolean connectionStatus;
+        public static Int16 heartBeatCheck;
         private SteeringWindow steeringWindow;
 
         public MainWindow()
@@ -36,7 +37,6 @@ namespace PC_Application
         public void Init()
         {
             this.steeringWindow = new SteeringWindow();
-            this.steeringWindow.Hide();
 
             MainWindow.connectionStatus = false;
         }
@@ -66,13 +66,17 @@ namespace PC_Application
                 return;
             }
 
-            this.ipAddress = this.TB_IPAddress.Text;
-            this.port = Convert.ToUInt16(this.TB_Port.Text);
+            MainWindow.ipAddress = this.TB_IPAddress.Text;
+            MainWindow.port = Convert.ToUInt16(this.TB_Port.Text);
 
             try
             {
                 tcpClient = new TcpClient();
-                tcpClient.Connect(this.ipAddress, this.port);
+                tcpClient.Connect(MainWindow.ipAddress, MainWindow.port);
+                tcpClient.ReceiveTimeout = 5000;
+                tcpClient.SendTimeout = 5000;
+                networkStream = tcpClient.GetStream();
+                Task.Run(() => ReceiveDataAsync());
 
                 MainWindow.connectionStatus = true;
                 this.Button_Connect.Text = "Disconnect";
@@ -90,6 +94,7 @@ namespace PC_Application
         private void Disconnect()
         {
             networkStream?.Close();
+            networkStream = null;
             tcpClient?.Close();
 
             MainWindow.connectionStatus = false;
@@ -97,7 +102,6 @@ namespace PC_Application
             this.TB_IPAddress.Enabled = true;
             this.TB_Port.Enabled = true;
             this.PB_Status.BackgroundImage = global::PC_Application.Properties.Resources.StopControl;
-            this.steeringWindow.Hide();
         }
 
         private void Button_Connect_Click(object sender, EventArgs e)
@@ -106,10 +110,10 @@ namespace PC_Application
                 this.Connect();
 
             else this.Disconnect();
-            
+
         }
 
-        public static async void SendCommand(String command)
+        public static void SendCommand(String command)
         {
             if (!MainWindow.connectionStatus)
                 return;
@@ -118,10 +122,9 @@ namespace PC_Application
             {
                 networkStream = tcpClient.GetStream();
                 if (networkStream.CanWrite)
-                {                    
+                {
                     byte[] data = Encoding.UTF8.GetBytes(command);
                     networkStream.Write(data, 0, data.Length);
-                    await Task.Delay(50);
                 }
             }
             catch (IOException ex)
@@ -131,6 +134,53 @@ namespace PC_Application
             catch (ObjectDisposedException ex)
             {
                 MessageBox.Show("Strumień został zamknięty: " + ex.Message);
+            }
+        }
+
+        public async Task ReceiveDataAsync()
+        {
+            try
+            {
+
+                if (tcpClient == null || !tcpClient.Connected)
+                {
+                    Console.WriteLine("Klient nie jest połączony.");
+                    return;
+                }
+
+                NetworkStream stream = tcpClient.GetStream();
+
+                // Bufor do odbioru danych
+                byte[] buffer = new byte[1024];
+
+                while (tcpClient.Connected)
+                {
+                    // Oczekiwanie na dane
+                    int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                    if (bytesRead > 0)
+                    {
+                        // Konwersja danych na string
+                        string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                        // Wyświetlenie lub dalsze przetwarzanie danych
+                        Console.WriteLine($"Odebrano: {receivedData}");
+                    }
+                    else
+                    {
+                        // Jeśli odczyt zwraca 0, oznacza to, że połączenie zostało zamknięte
+                        Console.WriteLine("Połączenie zamknięte przez klienta.");
+                        break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Błąd podczas odbierania danych: {ex.Message}");
+            }
+            finally
+            {
+                Disconnect();
+                Console.WriteLine("Połączenie zamknięte.");
             }
         }
     }

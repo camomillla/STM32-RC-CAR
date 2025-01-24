@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
@@ -30,6 +31,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "atc.h"
+#include "FreeRTOS.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +58,7 @@ int resp = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -324,7 +327,7 @@ void ProcessCommand(uint8_t* cmd) {
 }
 
 // Funkcja obsługująca przetwarzanie danych przychodzących przez ESP
-void ProcessIncomingData() {
+void ProcessIncomingData(void* argument) {
 	char *response = NULL; // Wskaźnik na odebrane dane
 	    while (1) {
 	        // Oczekiwanie na odpowiedź zawierającą +IPD
@@ -348,9 +351,37 @@ void ProcessIncomingData() {
 
 	        // Wywołanie głównej pętli ATC
 	        ATC_Loop(&ESP);
+	        osDelay(50);
 	    }
 }
 
+void ProcessHeartBeat(void* argument) {
+	    char heartbeatMessage[32]; // Bufor na wiadomość w formacie HB:XXX
+	    const uint8_t channel = 0; // Kanał komunikacji (dla CIPMUX=1)
+	    const int timeout = 1000; // Timeout na odpowiedź
+
+	    while (1) {
+	        // Przygotuj wiadomość HB:XXX
+	        sprintf(heartbeatMessage, "HB:%d\r\n", motorA.measured_speed);
+
+	        // Przygotuj komendę AT do wysyłania danych
+	        char command[32];
+	        sprintf(command, "AT+CIPSEND=%d,%d\r\n", channel, strlen(heartbeatMessage) - 2);
+
+	        // Wyślij komendę otwierającą wysyłkę danych
+	        ATC_Send(&ESP, command, timeout);
+	        osDelay(50); // Krótka przerwa na przetworzenie
+
+	        // Wyślij faktyczną wiadomość
+	        ATC_Send(&ESP, heartbeatMessage, timeout);
+
+	        // Wywołanie głównej pętli ATC
+	        ATC_Loop(&ESP);
+
+	        // Odczekaj 1 sekundę
+	        osDelay(50);
+	    }
+	}
 
 
 
@@ -399,7 +430,7 @@ int main(void)
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
 
-  ATC_Init(&ESP, &huart2, 512, "ESP");
+  ATC_Init(&ESP, &huart2, 2048, "ESP");
   ATC_SendReceive(&ESP, "AT\r\n", 1000, NULL, 1000, 0);
   ATC_SendReceive(&ESP, "AT+CWMODE=1\r\n", 1000, NULL, 1000, 0);
   ATC_SendReceive(&ESP, "AT+CIPMUX=1\r\n", 1000, NULL, 1000, 0);
@@ -425,12 +456,21 @@ int main(void)
   drv8835_init();
   motor_init(&motorA, &htim4);
   pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
-  ProcessIncomingData();
-
 
   //Set_PWM_Frequency(1000); // BUZZER
 
   /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();
+
+  /* Call init function for freertos objects (in cmsis_os2.c) */
+  MX_FREERTOS_Init();
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
