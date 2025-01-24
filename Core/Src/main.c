@@ -356,33 +356,56 @@ void ProcessIncomingData(void* argument) {
 }
 
 void ProcessHeartBeat(void* argument) {
-	    char heartbeatMessage[32]; // Bufor na wiadomość w formacie HB:XXX
-	    const uint8_t channel = 0; // Kanał komunikacji (dla CIPMUX=1)
-	    const int timeout = 1000; // Timeout na odpowiedź
+    char heartbeatMessage[32];
+    const uint8_t channel = 0;
+    const int timeout = 5000; // Zwiększony timeout
+    int lastSpeed = 0;
 
-	    while (1) {
-	        // Przygotuj wiadomość HB:XXX
-	        sprintf(heartbeatMessage, "HB:%d\r\n", motorA.measured_speed);
+    while (1) {
 
-	        // Przygotuj komendę AT do wysyłania danych
-	        char command[32];
-	        sprintf(command, "AT+CIPSEND=%d,%d\r\n", channel, strlen(heartbeatMessage) - 2);
+    	if (lastSpeed == motorA.measured_speed)
+    		continue;
 
-	        // Wyślij komendę otwierającą wysyłkę danych
-	        ATC_Send(&ESP, command, timeout);
-	        osDelay(50); // Krótka przerwa na przetworzenie
+    	lastSpeed = motorA.measured_speed;
 
-	        // Wyślij faktyczną wiadomość
-	        ATC_Send(&ESP, heartbeatMessage, timeout);
+        // Przygotowanie wiadomości heartbeat
+        sprintf(heartbeatMessage, "HB:%d\r\n", motorA.measured_speed);
+        char command[32];
+        sprintf(command, "AT+CIPSEND=%d,%d\r\n", channel, strlen(heartbeatMessage));
 
-	        // Wywołanie głównej pętli ATC
-	        ATC_Loop(&ESP);
+        // Wysłanie komendy AT+CIPSEND
+        if (ATC_Send(&ESP, command, timeout)) {
+            // Czekaj na odpowiedź z ESP, że jest gotowe na wysyłanie
+            osDelay(50);  // Możesz dostosować ten czas, aby dostosować do opóźnienia
 
-	        // Odczekaj 1 sekundę
-	        osDelay(50);
-	    }
+            // Wysłanie samego heartbeat
+            if (!ATC_Send(&ESP, heartbeatMessage, timeout)) {
+                // Obsługa błędu wysyłania
+                printf("Błąd wysyłania heartbeat\n");
+            }
+        } else {
+            // Obsługa błędu komendy AT+CIPSEND
+            printf("Błąd komendy AT+CIPSEND\n");
+        }
+
+        // Wywołanie głównej pętli ATC, aby upewnić się, że ESP działa poprawnie
+        ATC_Loop(&ESP);
+
+        // Odczekaj odpowiedni czas przed następnym wysłaniem
+        osDelay(500); // Skrócenie lub zwiększenie opóźnienia, zależnie od potrzeb
+    }
+}
+
+void TESTSCENARIO() {
+
+	int speed = 0;
+
+	while(1) {
+
+		motor_set_speed(&motorA, rand() % 100);
+		HAL_Delay(5000);
 	}
-
+}
 
 
 /* USER CODE END 0 */
@@ -456,6 +479,7 @@ int main(void)
   drv8835_init();
   motor_init(&motorA, &htim4);
   pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
+  TESTSCENARIO();
 
   //Set_PWM_Frequency(1000); // BUZZER
 

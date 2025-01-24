@@ -150,24 +150,31 @@ namespace PC_Application
 
                 NetworkStream stream = tcpClient.GetStream();
 
-                // Bufor do odbioru danych
                 byte[] buffer = new byte[1024];
 
                 while (tcpClient.Connected)
                 {
-                    // Oczekiwanie na dane
                     int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
                     if (bytesRead > 0)
                     {
-                        // Konwersja danych na string
                         string receivedData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
 
-                        // Wyświetlenie lub dalsze przetwarzanie danych
-                        Console.WriteLine($"Odebrano: {receivedData}");
+                        if (receivedData.StartsWith("HB:"))
+                        {
+                            // Wyodrębnij część po prefiksie "HB:"
+                            string numericPart = receivedData.Substring(3).Trim();
+
+                            // Próbuj przekonwertować na liczbę i wypisz ją
+                            if (int.TryParse(numericPart, out int speedValue))
+                            {
+                                steeringWindow.SetSpeedometer(speedValue);
+                                this.steeringWindow.SetSpeedometer(Convert.ToInt16(speedValue));
+                                Console.WriteLine($"Odebrano wartość: {speedValue}");
+                            }
+                        }
                     }
                     else
                     {
-                        // Jeśli odczyt zwraca 0, oznacza to, że połączenie zostało zamknięte
                         Console.WriteLine("Połączenie zamknięte przez klienta.");
                         break;
                     }

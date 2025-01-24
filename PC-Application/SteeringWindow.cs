@@ -228,12 +228,6 @@ namespace PC_Application
             else
                 this.targetAngle = 0.0F;
 
-            if (Keyboard.IsKeyDown(Key.Enter))
-            {
-                this.speedometerArrowTargetAngle = 270.0F;
-            }
-            else this.speedometerArrowTargetAngle = 0.0F;
-
             if (Keyboard.IsKeyDown(Key.RightShift) && !carIsRunning)
             {
                 carIsRunning = true;
@@ -350,6 +344,11 @@ namespace PC_Application
         {
             this.commandState_Horn = false;
             this.CarCommand_Horn();
+        }
+
+        public void SetSpeedometer(float speed)
+        {
+            this.speedometerArrowTargetAngle = speed;
         }
     }
 }
