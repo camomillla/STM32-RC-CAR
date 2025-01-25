@@ -16,5 +16,5 @@
 ../Core/Src/main.c:345:6:ProcessHeartBeat	104	static
 ../Core/Src/main.c:378:6:TESTSCENARIO	16	static
 ../Core/Src/main.c:398:5:main	24	static
-../Core/Src/main.c:494:6:SystemClock_Config	88	static
-../Core/Src/main.c:555:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:492:6:SystemClock_Config	88	static
+../Core/Src/main.c:553:6:Error_Handler	4	static,ignoring_inline_asm

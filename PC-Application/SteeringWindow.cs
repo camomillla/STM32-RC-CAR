@@ -303,7 +303,7 @@ namespace PC_Application
             else this.PB_Lights.BackColor= Color.Lime;
 
             this.commandState_Lights = !this.commandState_Lights;
-            MainWindow.SendCommand("LIGHTS");
+            //MainWindow.SendCommand("LIGHTS");
         }
 
         private void CarCommand_Horn()
@@ -312,7 +312,7 @@ namespace PC_Application
                 this.PB_Horn.BackColor = Color.Transparent;
             else this.PB_Horn.BackColor = Color.Lime;
 
-            MainWindow.SendCommand("HORN");
+            //MainWindow.SendCommand("HORN");
         }
 
         private void CarCommand_Motor(ushort motorID)
@@ -321,7 +321,7 @@ namespace PC_Application
                 this.PB_Pointer.BackColor = Color.Transparent;
             else this.PB_Pointer.BackColor = Color.Lime;
 
-            MainWindow.SendCommand("MOTOR" + motorID);
+            //MainWindow.SendCommand("MOTOR" + motorID);
         }
 
         private void CarCommand_Engine()

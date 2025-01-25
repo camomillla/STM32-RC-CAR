@@ -46,7 +46,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-ATC_HandleTypeDef ESP;
+ATC_HandleTypeDef HC05;
 int resp = 0;
 /* USER CODE END PM */
 
@@ -67,7 +67,7 @@ void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN 0 */
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 	if (huart->Instance == USART2) {
-		ATC_IdleLineCallback(&ESP, Size);
+		ATC_IdleLineCallback(&HC05, Size);
 	}
 }
 
@@ -319,7 +319,7 @@ void ProcessIncomingData(void* argument) {
 	char *response = NULL;
 	    while (1) {
 
-	        int result = ATC_Receive(&ESP, &response, 5000, 1, "+IPD,");
+	        int result = ATC_Receive(&HC05, &response, 5000, 1, "+IPD,");
 	        if (result > 0 && response != NULL) {
 
 	            char *ipdStart = strstr(response, "+IPD,");
@@ -334,10 +334,10 @@ void ProcessIncomingData(void* argument) {
 	                    ProcessCommand((uint8_t *)dataStart);
 	                }
 	            }
-	            ATC_RxFlush(&ESP);
+	            ATC_RxFlush(&HC05);
 	        }
 
-	        ATC_Loop(&ESP);
+	        ATC_Loop(&HC05);
 	        osDelay(50);
 	    }
 }
@@ -359,17 +359,17 @@ void ProcessHeartBeat(void* argument) {
         char command[32];
         sprintf(command, "AT+CIPSEND=%d,%d\r\n", channel, strlen(heartbeatMessage));
 
-        if (ATC_Send(&ESP, command, timeout)) {
+        if (ATC_Send(&HC05, command, timeout)) {
             osDelay(50);
 
-            if (!ATC_Send(&ESP, heartbeatMessage, timeout)) {
+            if (!ATC_Send(&HC05, heartbeatMessage, timeout)) {
                 printf("Błąd wysyłania heartbeat\n");
             }
         } else {
             printf("Błąd komendy AT+CIPSEND\n");
         }
 
-        ATC_Loop(&ESP);
+        ATC_Loop(&HC05);
 
         osDelay(500);
     }
@@ -434,15 +434,13 @@ int main(void)
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
 
-  ATC_Init(&ESP, &huart2, 2048, "ESP");
-  ATC_SendReceive(&ESP, "AT\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&ESP, "AT+CWMODE=1\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&ESP, "AT+CIPMUX=1\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&ESP, "AT+CIPMODE=1\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&ESP, "AT+CIPSERVER=1,80\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&ESP, "AT+CWJAP=\"DeathLock\",\"\"\r\n", 10000, NULL, 10000, 0);
+  ATC_Init(&HC05, &huart2, 2048, "HC05");
+  ATC_SendReceive(&HC05, "AT\r\n", 1000, NULL, 1000, 0);
+  ATC_SendReceive(&HC05, "AT+NAMERC-Car\r\n", 1000, NULL, 1000, 0);
+  ATC_SendReceive(&HC05, "AT+PIN1609\r\n", 1000, NULL, 1000, 0);
+  ATC_SendReceive(&HC05, "AT+BAUD8\r\n", 1000, NULL, 1000, 0);
 
-  const char *readyMsg = "STM32 ready to receive data from ESP...\r\n";
+  const char *readyMsg = "STM32 ready to receive data from HC05...\r\n";
   HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
 
   HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
