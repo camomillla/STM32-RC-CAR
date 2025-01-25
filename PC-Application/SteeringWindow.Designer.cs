@@ -128,7 +128,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(772, 549);
+            this.ClientSize = new System.Drawing.Size(768, 545);
             this.ControlBox = false;
             this.Controls.Add(this.PB_CarKey);
             this.Controls.Add(this.PB_Ignition);
@@ -143,7 +143,7 @@
             this.Name = "SteeringWindow";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "SteeringWindow";
             ((System.ComponentModel.ISupportInitialize)(this.PB_Ignition)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Lights)).EndInit();

@@ -63,6 +63,9 @@
     <Compile Include="SteeringWindow.Designer.cs">
       <DependentUpon>SteeringWindow.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="MainWindow.resx">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SteeringWindow.resx">
       <DependentUpon>SteeringWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -74,9 +77,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>MainWindow.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
