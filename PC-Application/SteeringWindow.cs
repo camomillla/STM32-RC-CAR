@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -35,18 +36,14 @@ namespace PC_Application
         private bool isKeyRightPressed = false;
 
         private bool carIsRunning = false;
+
+        private System.Media.SoundPlayer soundPlayer;
         public SteeringWindow(Form mainWindow)
         {
             InitializeComponent();
             this.mainWindow = mainWindow;
             this.Owner = this.mainWindow;
             this.Init();
-
-            PB_Speedometer_Arrow.Parent = PB_Speedometer_Back;
-            PB_Speedometer_Arrow.Location = Point.Empty;
-
-            PB_CarKey.Parent = PB_Ignition;
-            PB_CarKey.Location = Point.Empty;
         }
 
         private void Init()
@@ -65,28 +62,42 @@ namespace PC_Application
             };
             this.updateTimer.Tick += UpdateTimer_Tick;
             this.updateTimer.Start();
-            this.DisableControls(true);
+            this.DisableControls();
+
+            this.soundPlayer = new System.Media.SoundPlayer();
 
             this.Location = new Point(0, 0);
+
+            PB_Speedometer_Arrow.Parent = PB_Speedometer_Back;
+            PB_Speedometer_Arrow.Location = Point.Empty;
+
+            this.PB_CarKey.Parent = PB_Ignition;
+            this.PB_CarKey.Location = Point.Empty;
         }
 
-        public void EnableControls(Boolean force = false)
+        public void EnableControls(Boolean onlyStart)
         {
-            foreach(Control control in this.Controls)
+            if (onlyStart)
             {
-                if (control.GetType() != typeof(PictureBox))
+                this.PB_Ignition.BackColor = Color.Transparent;
+                this.PB_Ignition.Enabled = true;
+                return;
+            }
+
+            foreach (Control control in this.Controls)
+            {
+
+                if (control.GetType().Name != typeof(PictureBox).Name)
+                {
                     continue;
+                }
 
                 control.Enabled = true;
                 control.BackColor = Color.Transparent;
-
-                if ((control.Name == "PB_CarKey" ||
-                    control.Name == "PB_Ignition") && force)
-                    control.Enabled = true;
             }
         }
 
-        public void DisableControls(Boolean force = false)
+        public void DisableControls()
         {
             foreach (Control control in this.Controls)
             {
@@ -94,19 +105,12 @@ namespace PC_Application
                 {
                     continue;
                 }
-                
+
                 control.Enabled = false;
 
-                if (control.Name != "PB_Speedometer_Arrow")
+                if (control != this.PB_Speedometer_Arrow &&
+                    control != this.PB_CarKey)
                     control.BackColor = Color.Gray;
-
-                if ((control.Name == "PB_CarKey" ||
-                    control.Name == "PB_Ignition") && !force)
-                {
-                    control.BackColor = Color.Transparent;
-                    control.Enabled = true;
-                }
-
             }
         }
 
@@ -144,6 +148,9 @@ namespace PC_Application
 
             if (e.KeyCode == Keys.H)
                 this.PB_Horn_MouseUp(null, null);
+
+            if (e.KeyCode == Keys.ShiftKey)
+                this.PB_CarKey_MouseUp(null, null);
 
             if (!Keyboard.IsKeyDown(Key.Up) && Keyboard.IsKeyDown(Key.Left) && isKeyUpPressed && isKeyLeftPressed)
                 this.CarCommand_Motor(7);
@@ -205,6 +212,9 @@ namespace PC_Application
 
             if (e.KeyCode == Keys.H)
                 this.PB_Horn_MouseDown(null, null);
+
+            if (e.KeyCode == Keys.ShiftKey)
+                this.PB_CarKey_MouseDown(null, null);
 
             if ((!isKeyUpPressed || !isKeyLeftPressed) && Keyboard.IsKeyDown(Key.Up) && Keyboard.IsKeyDown(Key.Left))
             {
@@ -284,16 +294,6 @@ namespace PC_Application
                 this.targetAngle = 90.0F;
             else
                 this.targetAngle = 0.0F;
-
-            if (Keyboard.IsKeyDown(Key.RightShift) && !carIsRunning && this.PB_CarKey.Enabled)
-            {
-                carIsRunning = true;
-                this.carKeyTargetAngle = 135.0F;
-            } else if (Keyboard.IsKeyDown(Key.RightShift) && carIsRunning)
-            {
-                carIsRunning = false;
-                this.carKeyTargetAngle = 0.0F;
-            }
         }
 
         private void UpdateTimer_Tick(object sender, EventArgs e)
@@ -321,7 +321,7 @@ namespace PC_Application
             else
                 this.speedometerArrowAngle = this.speedometerArrowTargetAngle;
 
-            if (this.PB_CarKey.Enabled)
+            //if (this.PB_CarKey.Enabled)
             {
                 if (Math.Abs(this.carKeyAngle - this.carKeyTargetAngle) > angleSpeed)
                 {
@@ -346,8 +346,6 @@ namespace PC_Application
             rotatedImg.SetResolution(original.HorizontalResolution, original.VerticalResolution);
 
             Graphics g = Graphics.FromImage(rotatedImg);
-            //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            //g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             g.TranslateTransform(original.Width / 2.0F, original.Height / 2.0F);
             g.RotateTransform(angle);
             g.TranslateTransform(-original.Width / 2.0F, -original.Height / 2.0F);
@@ -391,11 +389,11 @@ namespace PC_Application
                 !this.PB_Pointer.Enabled)
                 return;
 
-            if (motorID == 0 && this.PB_CarKey.Enabled)
+            if (motorID == 0 && this.PB_Ignition.Enabled)
             {
                 this.PB_Pointer.BackColor = Color.Transparent;
             }
-            else if (this.PB_Pointer.Enabled && this.PB_CarKey.Enabled)
+            else if (this.PB_Pointer.Enabled && this.PB_Ignition.Enabled)
             {
                 this.PB_Pointer.BackColor = Color.Lime;
             }
@@ -405,7 +403,26 @@ namespace PC_Application
 
         private void CarCommand_Engine()
         {
+            if (!this.PB_Ignition.Enabled)
+                return;
 
+            this.carIsRunning = !this.carIsRunning;
+
+            if (carIsRunning)
+            {
+                this.carKeyTargetAngle = 135.0F;
+                this.EnableControls(false);
+                this.soundPlayer.SoundLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Ignition.wav");
+                this.soundPlayer.Play();
+            }
+            else
+            {
+                this.carKeyTargetAngle = 0.0F;
+                this.DisableControls();
+                this.EnableControls(true);
+                this.soundPlayer.SoundLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Ignition_Off.wav");
+                this.soundPlayer.Play();
+            }
         }
 
         private void PB_Lights_Click(object sender, EventArgs e)
@@ -428,6 +445,23 @@ namespace PC_Application
         public void SetSpeedometer(float speed)
         {
             this.speedometerArrowTargetAngle = speed;
+        }
+
+        private void PB_CarKey_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (!this.PB_Ignition.Enabled)
+                return;
+
+            if (!this.commandState_Engine)
+            {
+                this.commandState_Engine = true;
+                this.CarCommand_Engine();
+            }
+        }
+
+        private void PB_CarKey_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            this.commandState_Engine = false;
         }
     }
 }

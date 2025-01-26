@@ -81,7 +81,7 @@ namespace PC_Application
                 this.btDeviceInfos[counter++] = devInfo;
             }
 
-            this.CB_Bluetooth.SelectedIndex = 0;
+            this.CB_Bluetooth.SelectedIndex = counter - 1;
             MessageBox.Show(counter + " bluetooth devices was found");
         }
 
@@ -104,7 +104,7 @@ namespace PC_Application
             this.Button_Search.Enabled = false;
             this.PB_Status.BackgroundImage = global::PC_Application.Properties.Resources.StartControl;
             MainWindow.connectionStatus = true;
-            this.steeringWindow.DisableControls(false);
+            this.steeringWindow.EnableControls(true);
         }
 
         private void Disconnect()
@@ -122,7 +122,7 @@ namespace PC_Application
             this.Button_Search.Enabled = true;
             this.PB_Status.BackgroundImage = global::PC_Application.Properties.Resources.StopControl;
             MainWindow.connectionStatus = false;
-            this.steeringWindow.DisableControls(true);
+            this.steeringWindow.DisableControls();
         }
 
         private void Button_Connect_Click(object sender, EventArgs e)
