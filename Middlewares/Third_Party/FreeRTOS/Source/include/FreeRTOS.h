@@ -33,7 +33,6 @@
  */
 #include <stddef.h>
 
-	void ProcessIncomingData(void*);
 	void ProcessHeartBeat(void*);
 	void TESTSCENARIO(void*);
 /*

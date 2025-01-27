@@ -46,8 +46,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-ATC_HandleTypeDef HC05;
-int resp = 0;
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -68,11 +67,6 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
-	if (huart->Instance == USART2) {
-		ATC_IdleLineCallback(&HC05, Size);
-	}
-}
 
 typedef struct
 {
@@ -122,10 +116,10 @@ int pid_calculate(PID *pid_data, int setpoint, int process_variable)
 	return (int)(p_term + i_term + d_term);
 }
 
-#define MOTOR_A_Kp					3
-#define MOTOR_A_Ki					0.05
-#define MOTOR_A_Kd					0.05
-#define MOTOR_A_ANTI_WINDUP			1
+#define MOTOR_Kp					3
+#define MOTOR_Ki					0.05
+#define MOTOR_Kd					0.05
+#define MOTOR_ANTI_WINDUP			1
 
 #define ENCODER_RESOLUTION			3
 #define TIMER_CONF_BOTH_EDGE_T1T2	4
@@ -136,7 +130,11 @@ int pid_calculate(PID *pid_data, int setpoint, int process_variable)
 
 typedef struct
 {
-	TIM_HandleTypeDef *timer;
+	TIM_HandleTypeDef *encoder;
+
+	TIM_HandleTypeDef *motorBack;
+	TIM_HandleTypeDef *motorFront;
+	uint32_t axisTimer;
 
 	uint16_t resolution;
 
@@ -151,9 +149,13 @@ typedef struct
 
 MOTOR motorA;
 
-void motor_init(MOTOR *m, TIM_HandleTypeDef *tim)
+void Init_Motor(MOTOR *m, TIM_HandleTypeDef *enc, uint32_t axis, TIM_HandleTypeDef* front, TIM_HandleTypeDef* back)
 {
-	m->timer = tim;
+	m->encoder = enc;
+	m->axisTimer = axis;
+	m->motorBack = back;
+	m->motorFront = front;
+
 	m->resolution = ENCODER_RESOLUTION * TIMER_CONF_BOTH_EDGE_T1T2 * MOTOR_GEAR;
 
 	m->pulse_count = 0;
@@ -166,7 +168,7 @@ void motor_calculate_speed(MOTOR *m)
 {
 	motor_update_count(m);
 
-	m->measured_speed = (m->pulse_count * TIMER_FREQENCY * SECOND_IN_MINUTE) / m->resolution;
+	m->measured_speed = abs((m->pulse_count * TIMER_FREQENCY * SECOND_IN_MINUTE) / m->resolution);
 
 	int output = pid_calculate(&(m->pid_controller), m->set_speed, m->measured_speed);
 
@@ -174,16 +176,22 @@ void motor_calculate_speed(MOTOR *m)
 
 	if(m->actual_PWM >= 0)
 	{
-		drv8835_set_motorA_speed(m->actual_PWM);
+		SetMotorSpeed(m, m->actual_PWM);
 
 	}
 
 }
 
+void ResetMotor(MOTOR *m) {
+	m->set_speed = 0;
+	m->pulse_count = (int16_t)__HAL_TIM_GET_COUNTER(m->encoder);
+	__HAL_TIM_SET_COUNTER(m->encoder, 0);
+}
+
 void motor_update_count(MOTOR *m)
 {
-	m->pulse_count = (int16_t)__HAL_TIM_GET_COUNTER(m->timer);
-	__HAL_TIM_SET_COUNTER(m->timer, 0);
+	m->pulse_count = (int16_t)__HAL_TIM_GET_COUNTER(m->encoder);
+	__HAL_TIM_SET_COUNTER(m->encoder, 0);
 }
 
 void motor_set_speed(MOTOR *m, int set_speed)
@@ -194,19 +202,24 @@ void motor_set_speed(MOTOR *m, int set_speed)
 	m->set_speed = set_speed;
 }
 
-void drv8835_set_motorA_speed(uint16_t speed)
+void SetMotorSpeed(MOTOR* m, uint16_t speed)
 {
-	if(speed >= htim2.Instance->ARR)
-		speed = htim2.Instance->ARR;
+	if(speed >= m->motorBack->Instance->ARR)
+		speed = m->motorBack->Instance->ARR;
 
-	__HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_1, speed);
+	__HAL_TIM_SetCompare(m->motorBack, m->axisTimer, speed);
+	//__HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_4, speed);
 }
 
-void drv8835_init()
+void Init_MotorSystem()
 {
-	drv8835_set_motorA_speed(0);
+	Init_Motor(&motorA, &htim8, TIM_CHANNEL_1, &htim2, &htim5);
+	//Init_Motor(&motorB, &htim4, TIM_CHANNEL_1, &htim2, &htim5);
 
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+	pid_init(&(motorA.pid_controller), MOTOR_Kp, MOTOR_Ki, MOTOR_Kd, MOTOR_ANTI_WINDUP);
+
+	SetMotorSpeed(&motorA, 0);
+	//SetMotorSpeed(&motorB, 0);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -255,6 +268,8 @@ void ProcessCommand(uint8_t* cmd) {
 
 				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
 				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+				HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);
+				HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_4);
 
 				HAL_TIM_Base_Start_IT(&htim6);
 
@@ -262,6 +277,8 @@ void ProcessCommand(uint8_t* cmd) {
 				engineOn = 1;
 			}
 			else {
+				ResetMotor(&motorA);
+
 				HAL_TIM_Encoder_Stop(&htim1, TIM_CHANNEL_ALL);
 				HAL_TIM_Encoder_Stop(&htim3, TIM_CHANNEL_ALL);
 				HAL_TIM_Encoder_Stop(&htim4, TIM_CHANNEL_ALL);
@@ -269,6 +286,8 @@ void ProcessCommand(uint8_t* cmd) {
 
 				HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
 				HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_4);
+				HAL_TIM_PWM_Stop(&htim5, TIM_CHANNEL_1);
+				HAL_TIM_PWM_Stop(&htim5, TIM_CHANNEL_4);
 
 				HAL_TIM_Base_Stop_IT(&htim6);
 
@@ -355,34 +374,6 @@ void ProcessCommand(uint8_t* cmd) {
 	    }
 }
 
-void ProcessIncomingData(void* argument) {
-	char *response = NULL;
-	return;
-	    while (1) {
-
-	        int result = ATC_Receive(&HC05, &response, 5000, 1, "+IPD,");
-	        if (result > 0 && response != NULL) {
-
-	            char *ipdStart = strstr(response, "+IPD,");
-	            if (ipdStart != NULL) {
-
-	                char *dataStart = strchr(ipdStart, ':');
-	                if (dataStart != NULL) {
-	                    dataStart++;
-
-	                    HAL_UART_Transmit(&huart3, (uint8_t *)dataStart, strlen(dataStart), HAL_MAX_DELAY);
-	                    HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY);
-	                    ProcessCommand((uint8_t *)dataStart);
-	                }
-	            }
-	            ATC_RxFlush(&HC05);
-	        }
-
-	        ATC_Loop(&HC05);
-	        osDelay(50);
-	    }
-}
-
 void ProcessHeartBeat(void* argument) {
     for (;;) {
 
@@ -464,9 +455,7 @@ int main(void)
   HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
   HAL_UART_Receive_IT(&huart2, &rxData, 1);
 
-  drv8835_init();
-  motor_init(&motorA, &htim4);
-  pid_init(&(motorA.pid_controller), MOTOR_A_Kp, MOTOR_A_Ki, MOTOR_A_Kd, MOTOR_A_ANTI_WINDUP);
+  Init_MotorSystem();
 
   //Set_PWM_Frequency(1000); // BUZZER
 
@@ -554,7 +543,7 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (huart->Instance==USART2) {
-		//HAL_UART_Transmit(&huart3, rxData, 1, HAL_MAX_DELAY);
+		HAL_UART_Transmit(&huart3, rxData, 1, HAL_MAX_DELAY);
 		HAL_UART_Receive_IT(&huart2, &rxData, 1);
 		rxBuff[rxIdx++] = rxData[0];
 

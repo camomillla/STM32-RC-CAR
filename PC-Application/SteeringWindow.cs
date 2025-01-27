@@ -411,6 +411,8 @@ namespace PC_Application
 
             this.carIsRunning = !this.carIsRunning;
 
+            this.mainWindow.SendCommand("CMD0");
+
             if (carIsRunning)
             {
                 this.carKeyTargetAngle = 135.0F;
@@ -427,8 +429,6 @@ namespace PC_Application
                 this.soundPlayer.Play();
                 this.SetSpeedometer(0);
             }
-
-            this.mainWindow.SendCommand("CMD0");
         }
 
         private void PB_Lights_Click(object sender, EventArgs e)
