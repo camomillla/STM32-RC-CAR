@@ -13,7 +13,7 @@
 ../Core/Src/main.c:238:6:ATC_ReceiveCallback	16	static
 ../Core/Src/main.c:247:6:ProcessCommand	24	static
 ../Core/Src/main.c:358:6:ProcessIncomingData	24	static
-../Core/Src/main.c:386:6:ProcessHeartBeat	104	static
+../Core/Src/main.c:386:6:ProcessHeartBeat	64	static
 ../Core/Src/main.c:419:6:TESTSCENARIO	16	static
 ../Core/Src/main.c:439:5:main	16	static
 ../Core/Src/main.c:516:6:SystemClock_Config	88	static

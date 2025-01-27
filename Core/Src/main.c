@@ -391,7 +391,7 @@ void ProcessHeartBeat(void* argument) {
 
     while (1) {
 
-    	if (lastSpeed == motorA.measured_speed)
+    	/*if (lastSpeed == motorA.measured_speed)
     		continue;
 
     	lastSpeed = motorA.measured_speed;
@@ -410,7 +410,7 @@ void ProcessHeartBeat(void* argument) {
             printf("Błąd komendy AT+CIPSEND\n");
         }
 
-        ATC_Loop(&HC05);
+        ATC_Loop(&HC05);*/
 
         osDelay(500);
     }
@@ -488,13 +488,13 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  //osKernelInitialize();
+  osKernelInitialize();
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-  //MX_FREERTOS_Init();
+  MX_FREERTOS_Init();
 
   /* Start scheduler */
-  //osKernelStart();
+  osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
