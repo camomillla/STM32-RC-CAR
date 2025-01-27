@@ -14,7 +14,7 @@ namespace PC_Application
 {
     public partial class SteeringWindow : Form
     {
-        private Form mainWindow;
+        private MainWindow mainWindow;
 
         private float pointerAngle = 0.0F;
         private float targetAngle = 0.0F;
@@ -36,9 +36,10 @@ namespace PC_Application
         private bool isKeyRightPressed = false;
 
         private bool carIsRunning = false;
+        private bool hornIsHorning = false; // idk lol
 
         private System.Media.SoundPlayer soundPlayer;
-        public SteeringWindow(Form mainWindow)
+        public SteeringWindow(MainWindow mainWindow)
         {
             InitializeComponent();
             this.mainWindow = mainWindow;
@@ -368,7 +369,7 @@ namespace PC_Application
             else this.PB_Lights.BackColor= Color.Lime;
 
             this.commandState_Lights = !this.commandState_Lights;
-            //MainWindow.SendCommand("LIGHTS");
+            this.mainWindow.SendCommand("CMDA");
         }
 
         private void CarCommand_Horn()
@@ -376,11 +377,13 @@ namespace PC_Application
             if (!this.PB_Horn.Enabled)
                 return;
 
-            if (!commandState_Horn)
+            this.hornIsHorning = !this.hornIsHorning;
+
+            if (!hornIsHorning)
                 this.PB_Horn.BackColor = Color.Transparent;
             else this.PB_Horn.BackColor = Color.Lime;
 
-            //MainWindow.SendCommand("HORN");
+            this.mainWindow.SendCommand("CMDB");
         }
 
         private void CarCommand_Motor(ushort motorID)
@@ -398,7 +401,7 @@ namespace PC_Application
                 this.PB_Pointer.BackColor = Color.Lime;
             }
 
-            //MainWindow.SendCommand("MOTOR" + motorID);
+            this.mainWindow.SendCommand("CMD" + (motorID + 1));
         }
 
         private void CarCommand_Engine()
@@ -423,6 +426,8 @@ namespace PC_Application
                 this.soundPlayer.SoundLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Ignition_Off.wav");
                 this.soundPlayer.Play();
             }
+
+            this.mainWindow.SendCommand("CMD0");
         }
 
         private void PB_Lights_Click(object sender, EventArgs e)
@@ -432,14 +437,19 @@ namespace PC_Application
 
         private void PB_Horn_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
-            this.commandState_Horn = true;
-            this.CarCommand_Horn();
+            if (!this.PB_Horn.Enabled)
+                return;
+
+            if (!this.commandState_Horn)
+            {
+                this.commandState_Horn = true;
+                this.CarCommand_Horn();
+            }
         }
 
         private void PB_Horn_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             this.commandState_Horn = false;
-            this.CarCommand_Horn();
         }
 
         public void SetSpeedometer(float speed)

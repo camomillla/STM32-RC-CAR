@@ -68,10 +68,7 @@ namespace PC_Application
             Array.Clear(this.btDeviceInfos, 0, this.btDeviceInfos.Length - 1);
 
             if (this.btClient == null)
-            {
-                Console.WriteLine("btClient == null - sender:" + sender.ToString());
-                return;
-            }
+                this.btClient = new BluetoothClient();
 
             ushort counter = 0;
 
@@ -140,6 +137,19 @@ namespace PC_Application
             {
                 Console.WriteLine(ex.ToString());
             }
+        }
+
+        public void SendCommand(String command)
+        {
+            if (!MainWindow.connectionStatus)
+                return;
+
+            if (!this.btClient.GetStream().CanWrite ||
+                this.btClient == null)
+                return;
+
+            this.btClient.GetStream().Write(Encoding.ASCII.GetBytes(command), 0, Encoding.ASCII.GetBytes(command).Length);
+            this.btClient.GetStream().Flush();
         }
     }
 }

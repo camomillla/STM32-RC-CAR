@@ -53,6 +53,9 @@ int resp = 0;
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t rxData[1];
+char rxBuff[64];
+uint8_t rxIdx = 0;
 
 /* USER CODE END PV */
 
@@ -239,14 +242,50 @@ void ATC_ReceiveCallback(const char *data) {
 }
 
 int hornOn = 0;
+int engineOn = 0;
 
 void ProcessCommand(uint8_t* cmd) {
 
-	    if (strcmp((char*)cmd, "LIGHTS") == 0) {
+		if (strcmp((char*)cmd, "CMD0") == 0) {
+			if (!engineOn) {
+				HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
+				HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+				HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
+				HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
+
+				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+
+				HAL_TIM_Base_Start_IT(&htim6);
+
+				HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+				engineOn = 1;
+			}
+			else {
+				HAL_TIM_Encoder_Stop(&htim1, TIM_CHANNEL_ALL);
+				HAL_TIM_Encoder_Stop(&htim3, TIM_CHANNEL_ALL);
+				HAL_TIM_Encoder_Stop(&htim4, TIM_CHANNEL_ALL);
+				HAL_TIM_Encoder_Stop(&htim8, TIM_CHANNEL_ALL);
+
+				HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+				HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_4);
+
+				HAL_TIM_Base_Stop_IT(&htim6);
+
+				HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
+				engineOn = 0;
+			}
+
+
+			HAL_UART_Transmit(&huart3, (uint8_t*)"ENGINE RUNNING\r\n", 16, HAL_MAX_DELAY);
+		}
+
+		else if (strcmp((char*)cmd, "CMDA") == 0) {
 	        HAL_GPIO_TogglePin(LIGHTS_GPIO_Port, LIGHTS_Pin);
+			HAL_UART_Transmit(&huart3, (uint8_t*)"LIGHTS RUNNING\r\n", 16, HAL_MAX_DELAY);
 	    }
 
-	    else if (strcmp((char*)cmd, "HORN") == 0) {
+	    else if (strcmp((char*)cmd, "CMDB") == 0) {
 	    	if (!hornOn) {
 		    	Set_PWM_Frequency(1000);
 		    	hornOn = 1;
@@ -255,50 +294,51 @@ void ProcessCommand(uint8_t* cmd) {
 	    		Set_PWM_Frequency(0);
 	    		hornOn = 0;
 	    	}
+			HAL_UART_Transmit(&huart3, (uint8_t*)"HORN RUNNING\r\n", 14, HAL_MAX_DELAY);
 	    }
 
-	    else if (strncmp((char*)cmd, "MOTOR", 5) == 0) {
-	        char* modeStr = (char*)cmd + 5;
+	    else if (strncmp((char*)cmd, "CMD", 3) == 0) {
+	        char* modeStr = (char*)cmd + 3;
 	        int mode = atoi(modeStr);
 
-	        if (mode >= 0 && mode <= 8) {
+	        if (mode >= 1 && mode <= 9) {
 	            switch (mode) {
-	                case 0:
+	                case 1:
 	                    // Operacja dla MOTOR0
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR0 selected\r\n", 18, HAL_MAX_DELAY);
 	                    motor_set_speed(&motorA, 0);
 	                    break;
-	                case 1:
+	                case 2:
 	                    // Operacja dla MOTORF
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR1 selected\r\n", 18, HAL_MAX_DELAY);
 	                    motor_set_speed(&motorA, 100);
 	                    break;
-	                case 2:
+	                case 3:
 	                    // Operacja dla MOTORFR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR2 selected\r\n", 18, HAL_MAX_DELAY);
 	                    motor_set_speed(&motorA, 75);
 	                    break;
-	                case 3:
+	                case 4:
 	                    // Operacja dla MOTORR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR3 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
-	                case 4:
+	                case 5:
 	                    // Operacja dla MOTORBR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR4 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
-	                case 5:
+	                case 6:
 	                    // Operacja dla MOTORB
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR5 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
-	                case 6:
+	                case 7:
 	                    // Operacja dla MOTORBL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR6 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
-	                case 7:
+	                case 8:
 	                    // Operacja dla MOTORL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR7 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
-	                case 8:
+	                case 9:
 	                    // Operacja dla MOTORFL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR8 selected\r\n", 18, HAL_MAX_DELAY);
 	                    break;
@@ -317,6 +357,7 @@ void ProcessCommand(uint8_t* cmd) {
 
 void ProcessIncomingData(void* argument) {
 	char *response = NULL;
+	return;
 	    while (1) {
 
 	        int result = ATC_Receive(&HC05, &response, 5000, 1, "+IPD,");
@@ -434,26 +475,9 @@ int main(void)
   MX_TIM12_Init();
   /* USER CODE BEGIN 2 */
 
-  ATC_Init(&HC05, &huart2, 2048, "HC05");
-  ATC_SendReceive(&HC05, "AT\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&HC05, "AT+NAMERC-Car\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&HC05, "AT+PIN1609\r\n", 1000, NULL, 1000, 0);
-  ATC_SendReceive(&HC05, "AT+BAUD8\r\n", 1000, NULL, 1000, 0);
-
   const char *readyMsg = "STM32 ready to receive data from HC05...\r\n";
   HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
-
-  HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
-  HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-  HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
-  HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
-
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
-
-  HAL_TIM_Base_Start_IT(&htim6);
-
-  HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+  HAL_UART_Receive_IT(&huart2, &rxData, 1);
 
   drv8835_init();
   motor_init(&motorA, &htim4);
@@ -464,13 +488,13 @@ int main(void)
   /* USER CODE END 2 */
 
   /* Init scheduler */
-  osKernelInitialize();
+  //osKernelInitialize();
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
-  MX_FREERTOS_Init();
+  //MX_FREERTOS_Init();
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
 
@@ -543,7 +567,19 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if (huart->Instance==USART2) {
+		//HAL_UART_Transmit(&huart3, rxData, 1, HAL_MAX_DELAY);
+		HAL_UART_Receive_IT(&huart2, &rxData, 1);
+		rxBuff[rxIdx++] = rxData[0];
 
+		if (rxIdx == 4) {
+			//HAL_UART_Transmit(&huart3, rxBuff, rxIdx, HAL_MAX_DELAY);
+			ProcessCommand(rxBuff);
+			rxIdx = 0;
+		}
+	}
+}
 /* USER CODE END 4 */
 
 /**
