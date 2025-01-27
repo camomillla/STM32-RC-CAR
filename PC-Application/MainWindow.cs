@@ -82,7 +82,7 @@ namespace PC_Application
             MessageBox.Show(counter + " bluetooth devices was found");
         }
 
-        private void Connect()
+        private async void Connect()
         {
             if (this.btClient == null)
                 this.btClient = new BluetoothClient();
@@ -102,6 +102,8 @@ namespace PC_Application
             this.PB_Status.BackgroundImage = global::PC_Application.Properties.Resources.StartControl;
             MainWindow.connectionStatus = true;
             this.steeringWindow.EnableControls(true);
+
+            await ReceiveDataAsync();
         }
 
         private void Disconnect()
@@ -150,6 +152,49 @@ namespace PC_Application
 
             this.btClient.GetStream().Write(Encoding.ASCII.GetBytes(command), 0, Encoding.ASCII.GetBytes(command).Length);
             this.btClient.GetStream().Flush();
+        }
+
+        private async Task ReceiveDataAsync()
+        {
+            try
+            {
+                while (MainWindow.connectionStatus)
+                {
+                    if (this.btClient != null && this.btClient.Connected)
+                    {
+                        NetworkStream stream = this.btClient.GetStream();
+
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+
+                        bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+
+                        if (bytesRead > 0)
+                        {
+                            string receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+
+                            if (receivedData.StartsWith("HB:"))
+                            {
+                                string speedString = receivedData.Substring(3);
+                                if (int.TryParse(speedString, out int speed))
+                                {
+                                    this.Invoke(new Action(() =>
+                                    {
+                                        this.steeringWindow.SetSpeedometer(speed / 125.0F * 270.0F);
+                                        Console.WriteLine($"HB:{speed}");
+                                    }));
+                                }
+                            }
+                        }
+                    }
+
+                    await Task.Delay(50);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error receiving data: {ex.Message}");
+            }
         }
     }
 }

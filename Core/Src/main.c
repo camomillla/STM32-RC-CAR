@@ -384,35 +384,20 @@ void ProcessIncomingData(void* argument) {
 }
 
 void ProcessHeartBeat(void* argument) {
-    char heartbeatMessage[32];
-    const uint8_t channel = 0;
-    const int timeout = 5000;
-    int lastSpeed = 0;
+    for (;;) {
 
-    while (1) {
-
-    	/*if (lastSpeed == motorA.measured_speed)
+    	if (!engineOn)
     		continue;
 
-    	lastSpeed = motorA.measured_speed;
+    	char message[16];  // Bufor na wiadomość, np. "HB:123"
+    	int length;
 
-        sprintf(heartbeatMessage, "HB:%d\r\n", motorA.measured_speed);
-        char command[32];
-        sprintf(command, "AT+CIPSEND=%d,%d\r\n", channel, strlen(heartbeatMessage));
+    	// Formatowanie wiadomości
+    	length = snprintf(message, sizeof(message), "HB:%d\r\n", motorA.measured_speed);
 
-        if (ATC_Send(&HC05, command, timeout)) {
-            osDelay(50);
-
-            if (!ATC_Send(&HC05, heartbeatMessage, timeout)) {
-                printf("Błąd wysyłania heartbeat\n");
-            }
-        } else {
-            printf("Błąd komendy AT+CIPSEND\n");
-        }
-
-        ATC_Loop(&HC05);*/
-
-        osDelay(500);
+    	// Wysyłanie przez UART2
+    	HAL_UART_Transmit(&huart2, (uint8_t*)message, length, HAL_MAX_DELAY);
+        osDelay(100);
     }
 }
 

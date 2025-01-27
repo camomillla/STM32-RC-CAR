@@ -425,6 +425,7 @@ namespace PC_Application
                 this.EnableControls(true);
                 this.soundPlayer.SoundLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Ignition_Off.wav");
                 this.soundPlayer.Play();
+                this.SetSpeedometer(0);
             }
 
             this.mainWindow.SendCommand("CMD0");
