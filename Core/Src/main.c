@@ -435,6 +435,29 @@ void ProcessCommand(uint8_t* cmd) {
 	    }
 }
 
+uint32_t pmilis;
+uint32_t Value1;
+uint32_t Value2;
+uint16_t Distance;
+
+void DistanceDetector() {
+	HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_SET);
+	__HAL_TIM_SET_COUNTER(&htim9, 0);
+
+	while (__HAL_TIM_GET_COUNTER(&htim9) < 10);
+	HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_RESET);
+
+	pmilis = HAL_GetTick();
+	while (!(HAL_GPIO_ReadPin(DETECTOR_ECHO_GPIO_Port, DETECTOR_ECHO_Pin)) && pmilis + 10 > HAL_GetTick());
+	Value1 = __HAL_TIM_GET_COUNTER((&htim9));
+
+	pmilis = HAL_GetTick();
+	while ((HAL_GPIO_ReadPin(DETECTOR_ECHO_GPIO_Port, DETECTOR_ECHO_Pin)) && pmilis + 50 > HAL_GetTick());
+	Value2 = __HAL_TIM_GET_COUNTER(&htim9);
+
+	Distance = (Value2 - Value1) * 0.034 / 2;
+}
+
 void ProcessHeartBeat(void* argument) {
     for (;;) {
 
@@ -444,6 +467,7 @@ void ProcessHeartBeat(void* argument) {
     	int16_t data[4] = {motorA.measured_speed, motorB.measured_speed, motorA.set_speed, motorB.set_speed};
     	HAL_UART_Transmit(&huart2, (uint8_t*)data, sizeof(data), HAL_MAX_DELAY);
 
+    	//DistanceDetector();
         osDelay(100);
     }
 }
@@ -505,6 +529,7 @@ int main(void)
   MX_TIM6_Init();
   MX_TIM5_Init();
   MX_TIM12_Init();
+  MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
 
   const char *readyMsg = "STM32 ready to receive data from HC05...\r\n";

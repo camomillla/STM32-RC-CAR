@@ -84,13 +84,13 @@ namespace PC_Application
             this.ChartC.Series["Prędkość zadana"].Points.Clear();
 
             this.Label_ChartA_M.Text = "Pomiar: " + motorASpeedsMeasured[motorASpeedsMeasured.Count - 1];
-            this.Label_ChartA_S.Text = "Zadano: " + motorASpeedsMeasured[motorASpeedsSet.Count - 1];
+            this.Label_ChartA_S.Text = "Zadano: " + motorASpeedsSet[motorASpeedsSet.Count - 1];
 
             this.Label_ChartB_M.Text = "Pomiar: " + motorBSpeedsMeasured[motorBSpeedsMeasured.Count - 1];
-            this.Label_ChartB_S.Text = "Zadano: " + motorBSpeedsMeasured[motorBSpeedsSet.Count - 1];
+            this.Label_ChartB_S.Text = "Zadano: " + motorBSpeedsSet[motorBSpeedsSet.Count - 1];
 
-            int avgMeasured = (motorASpeedsMeasured[motorBSpeedsMeasured.Count - 1] + motorBSpeedsMeasured[motorBSpeedsMeasured.Count - 1]) / 2;
-            int avgSet = (motorASpeedsSet[motorBSpeedsMeasured.Count - 1] + motorBSpeedsSet[motorBSpeedsMeasured.Count - 1]) / 2;
+            int avgMeasured = (motorASpeedsMeasured[motorASpeedsMeasured.Count - 1] + motorBSpeedsMeasured[motorBSpeedsMeasured.Count - 1]) / 2;
+            int avgSet = (motorASpeedsSet[motorASpeedsSet.Count - 1] + motorBSpeedsSet[motorBSpeedsSet.Count - 1]) / 2;
             this.Label_ChartC_M.Text = "Pomiar: " + avgMeasured;
             this.Label_ChartC_S.Text = "Zadano: " + avgSet;
 

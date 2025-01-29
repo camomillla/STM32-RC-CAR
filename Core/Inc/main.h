@@ -57,6 +57,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define DETECTOR_ECHO_Pin GPIO_PIN_5
+#define DETECTOR_ECHO_GPIO_Port GPIOE
+#define DETECTOR_TRIGGER_Pin GPIO_PIN_6
+#define DETECTOR_TRIGGER_GPIO_Port GPIOE
 #define USER_Btn_Pin GPIO_PIN_13
 #define USER_Btn_GPIO_Port GPIOC
 #define MCO_Pin GPIO_PIN_0
