@@ -79,7 +79,7 @@
             this.ChartB.Legends.Add(legend2);
             this.ChartB.Location = new System.Drawing.Point(12, 213);
             this.ChartB.Name = "ChartB";
-            this.ChartB.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Chocolate;
+            this.ChartB.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Bright;
             series2.ChartArea = "ChartArea1";
             series2.Legend = "Legend1";
             series2.Name = "Series1";
@@ -172,7 +172,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.BlanchedAlmond;
-            this.ClientSize = new System.Drawing.Size(618, 644);
+            this.ClientSize = new System.Drawing.Size(614, 640);
             this.ControlBox = false;
             this.Controls.Add(this.Label_ChartC_S);
             this.Controls.Add(this.Label_ChartC_M);

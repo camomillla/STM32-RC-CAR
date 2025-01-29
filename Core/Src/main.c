@@ -332,6 +332,7 @@ void ProcessCommand(uint8_t* cmd) {
 			}
 			else {
 				ResetMotor(&motorA);
+				ResetMotor(&motorB);
 
 				HAL_TIM_Encoder_Stop(&htim1, TIM_CHANNEL_ALL);
 				HAL_TIM_Encoder_Stop(&htim3, TIM_CHANNEL_ALL);

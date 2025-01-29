@@ -50,6 +50,8 @@ namespace PC_Application
             this.ChartA.Series["Prędkość zadana"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartA.Series["Prędkość zadana"].Points.Clear();
             this.ChartA.Titles.Add("Prawy silnik");
+            this.ChartA.ChartAreas[0].AxisX.Title = "Próbka";
+            this.ChartA.ChartAreas[0].AxisY.Title = "Prędkość [RPM]";
 
 
 
@@ -61,6 +63,8 @@ namespace PC_Application
             this.ChartB.Series["Prędkość zadana"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartB.Series["Prędkość zadana"].Points.Clear();
             this.ChartB.Titles.Add("Lewy silnik");
+            this.ChartB.ChartAreas[0].AxisX.Title = "Próbka";
+            this.ChartB.ChartAreas[0].AxisY.Title = "Prędkość [RPM]";
 
 
             this.ChartC.Series.RemoveAt(0);
@@ -71,6 +75,8 @@ namespace PC_Application
             this.ChartC.Series["Prędkość zadana"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartC.Series["Prędkość zadana"].Points.Clear();
             this.ChartC.Titles.Add("Wartość średnia");
+            this.ChartC.ChartAreas[0].AxisX.Title = "Próbka";
+            this.ChartC.ChartAreas[0].AxisY.Title = "Prędkość [RPM]";
         }
 
         public void UpdateCharts(List<int> motorASpeedsMeasured, List<int> motorBSpeedsMeasured,
