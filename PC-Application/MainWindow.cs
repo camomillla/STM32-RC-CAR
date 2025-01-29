@@ -143,6 +143,7 @@ namespace PC_Application
             }
             catch (Exception ex)
             {
+                MessageBox.Show($"Wystąpił błąd komunikacji Bluetooth:\n{ex.Message}", "Błąd komunikacji Bluetooth", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Console.WriteLine(ex.ToString());
             }
         }
@@ -227,13 +228,45 @@ namespace PC_Application
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error receiving data: {ex.Message}");
+                //MessageBox.Show($"Error receiving data: {ex.Message}"); <- not important
             }
         }
 
         private void Button_Export_Click(object sender, EventArgs e)
         {
+            try
+            {
+                using (var writer = new StreamWriter("Plots/MotorA.csv"))
+                {
+                    writer.WriteLine("Index,MotorA Measured,MotorA Set");
+                    for (int i = 0; i < motorASpeedsMeasured.Count && i < maxHistorySize; i++)
+                        writer.WriteLine($"{i + 1},{motorASpeedsMeasured[i]},{motorASpeedsSet[i]}");
+                }
 
+                using (var writer = new StreamWriter("Plots/MotorB.csv"))
+                {
+                    writer.WriteLine("Index,MotorB Measured,MotorB Set");
+                    for (int i = 0; i < motorBSpeedsMeasured.Count && i < maxHistorySize; i++)
+                        writer.WriteLine($"{i + 1},{motorBSpeedsMeasured[i]},{motorBSpeedsSet[i]}");
+                }
+
+                using (var writer = new StreamWriter("Plots/MotorAvg.csv"))
+                {
+                    writer.WriteLine("Index,Avg Measured,Avg Set");
+                    for (int i = 0; i < motorASpeedsMeasured.Count && i < maxHistorySize; i++)
+                    {
+                        int avgMeasured = (motorASpeedsMeasured[i] + motorBSpeedsMeasured[i]) / 2;
+                        int avgSet = (motorASpeedsSet[i] + motorBSpeedsSet[i]) / 2;
+                        writer.WriteLine($"{i + 1},{avgMeasured},{avgSet}");
+                    }
+                }
+
+                MessageBox.Show("Zapis do pliku .CSV udany", "Zapis wykresów", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Wystąpił błąd podczas zapisywania plików CSV:\n{ex.Message}", "Zapis wykresów", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

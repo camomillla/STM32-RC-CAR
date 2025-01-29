@@ -3,32 +3,24 @@
   "WorkspaceRootPath": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\steeringwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:steeringwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\steeringwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:steeringwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\steeringwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:steeringwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,44 +30,44 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "MainWindow.cs [Projekt]",
-              "DocumentMoniker": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs",
-              "RelativeDocumentMoniker": "MainWindow.cs",
-              "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs [Projekt]*",
-              "RelativeToolTip": "MainWindow.cs [Projekt]*",
+              "DocumentIndex": 2,
+              "Title": "SteeringWindow.cs [Projekt]",
+              "DocumentMoniker": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\SteeringWindow.cs",
+              "RelativeDocumentMoniker": "SteeringWindow.cs",
+              "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\SteeringWindow.cs [Projekt]",
+              "RelativeToolTip": "SteeringWindow.cs [Projekt]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T03:09:57.163Z",
+              "WhenOpened": "2025-01-29T03:32:33.485Z",
               "EditorCaption": " [Projekt]"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "Program.cs",
-              "DocumentMoniker": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAjwBIAAAAuAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "MainWindow.cs",
+              "DocumentMoniker": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs",
+              "RelativeDocumentMoniker": "MainWindow.cs",
+              "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs*",
+              "RelativeToolTip": "MainWindow.cs*",
+              "ViewState": "AgIAAHwAAAAAAAAAAADwv5AAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T02:50:39.344Z",
+              "WhenOpened": "2025-01-29T03:17:59.949Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 1,
               "Title": "Charts.cs",
               "DocumentMoniker": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\Charts.cs",
               "RelativeDocumentMoniker": "Charts.cs",
               "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\Charts.cs",
               "RelativeToolTip": "Charts.cs",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAqwA8AAAAsAAAAAAAAAA==",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAqwFYAAABYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T02:55:00.055Z",
+              "WhenOpened": "2025-01-29T03:17:58.431Z",
               "EditorCaption": ""
             },
             {
@@ -87,45 +79,19 @@
               "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\Charts.cs [Projekt]",
               "RelativeToolTip": "Charts.cs [Projekt]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T02:54:58.91Z",
+              "WhenOpened": "2025-01-29T03:15:19.536Z",
               "EditorCaption": " [Projekt]"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "SteeringWindow.cs",
-              "DocumentMoniker": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\SteeringWindow.cs",
-              "RelativeDocumentMoniker": "SteeringWindow.cs",
-              "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\SteeringWindow.cs",
-              "RelativeToolTip": "SteeringWindow.cs",
-              "ViewState": "AgIAADIAAAAAAAAAAAASwCkAAAAPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T02:43:58.112Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MainWindow.cs",
+              "Title": "MainWindow.cs [Projekt]",
               "DocumentMoniker": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs",
               "RelativeDocumentMoniker": "MainWindow.cs",
-              "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs*",
-              "RelativeToolTip": "MainWindow.cs*",
-              "ViewState": "AgIAACMAAAAAAAAAAAAAACoAAAAqAAAAAAAAAA==",
+              "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs [Projekt]*",
+              "RelativeToolTip": "MainWindow.cs [Projekt]*",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T02:43:29.552Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "SteeringWindow.cs [Projekt]",
-              "DocumentMoniker": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\SteeringWindow.cs",
-              "RelativeDocumentMoniker": "SteeringWindow.cs",
-              "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\SteeringWindow.cs [Projekt]",
-              "RelativeToolTip": "SteeringWindow.cs [Projekt]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T02:42:45.127Z",
+              "WhenOpened": "2025-01-29T03:15:13.807Z",
               "EditorCaption": " [Projekt]"
             }
           ]

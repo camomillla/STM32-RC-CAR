@@ -111,8 +111,9 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "MainWindow";
+            this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "PC-Application";
+            this.Text = "Panel transmisyjny";
             ((System.ComponentModel.ISupportInitialize)(this.PB_Status)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

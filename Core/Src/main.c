@@ -358,6 +358,7 @@ void ProcessCommand(uint8_t* cmd) {
 
 	    else if (strcmp((char*)cmd, "CMDC") == 0) {
 	    	MotorABS(&motorA);
+	    	MotorABS(&motorB);
 			HAL_UART_Transmit(&huart3, (uint8_t*)"ABS!!!\r\n", 8, HAL_MAX_DELAY);
 	    }
 

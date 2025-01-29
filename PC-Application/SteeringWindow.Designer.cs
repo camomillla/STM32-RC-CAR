@@ -147,7 +147,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.BlanchedAlmond;
-            this.ClientSize = new System.Drawing.Size(534, 408);
+            this.ClientSize = new System.Drawing.Size(530, 404);
             this.ControlBox = false;
             this.Controls.Add(this.PB_ABS);
             this.Controls.Add(this.PB_CarKey);
@@ -164,7 +164,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "SteeringWindow";
+            this.Text = "Panel sterowniczy";
             ((System.ComponentModel.ISupportInitialize)(this.PB_ABS)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_CarKey)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Ignition)).EndInit();
