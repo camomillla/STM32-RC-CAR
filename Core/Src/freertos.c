@@ -49,30 +49,8 @@
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
-osThreadId_t heartBeatHandle;
-osThreadId_t testScenario;
-osThreadId_t distanceSensorHandle;
-
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
-const osThreadAttr_t heartBeatHandle_attributes = {
-  .name = "heartBeat",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
-const osThreadAttr_t testScenario_attributes = {
-  .name = "testScenario",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
-const osThreadAttr_t distanceSensor_attributes = {
-  .name = "distanceSensor",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
@@ -114,11 +92,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-	//defaultTaskHandle = osThreadNew(ProcessIncomingData, NULL, &defaultTask_attributes);
-	heartBeatHandle = osThreadNew(ProcessHeartBeat, NULL, &heartBeatHandle_attributes);
-	distanceSensorHandle = osThreadNew(DistanceSensor, NULL, &distanceSensor_attributes);
-	//testScenario = osThreadNew(TESTSCENARIO, NULL, &testScenario_attributes);
-
+  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */

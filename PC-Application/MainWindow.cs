@@ -167,6 +167,8 @@ namespace PC_Application
         private List<int> motorBSpeedsSet = new List<int>();
         private const int maxHistorySize = 100;
 
+        public int DistanceToObject = 0;
+
         private async Task ReceiveDataAsync()
         {
             try
@@ -191,7 +193,7 @@ namespace PC_Application
                             short motorBSpeedMeasured = BitConverter.ToInt16(buffer, 2);
                             short motorASpeedSet = BitConverter.ToInt16(buffer, 4);
                             short motorBSpeedSet = BitConverter.ToInt16(buffer, 6);
-                            short distance = BitConverter.ToInt16(buffer, 8);
+                            this.DistanceToObject = BitConverter.ToInt16(buffer, 8);
 
                             motorASpeedsMeasured.Add(motorASpeedMeasured);
                             motorBSpeedsMeasured.Add(motorBSpeedMeasured);
@@ -219,8 +221,9 @@ namespace PC_Application
 
                                 Console.WriteLine($"HB:{motorASpeedMeasured};{motorBSpeedMeasured} -> Last Measured: {avgMeasuredSpeed}");
                                 Console.WriteLine($"Set Speeds: {lastMotorASpeedSet}; {lastMotorBSpeedSet}");
-                                Console.WriteLine($"Distance: {distance}");
+                                Console.WriteLine($"Distance: {this.DistanceToObject}");
                                 this.chartsWindow.UpdateCharts(this.motorASpeedsMeasured, this.motorBSpeedsMeasured, this.motorASpeedsSet, this.motorBSpeedsSet);
+                                this.steeringWindow.CheckDistanceCollision();
                             }));
                         }
                     }

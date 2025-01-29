@@ -33,9 +33,6 @@
  */
 #include <stddef.h>
 
-	void ProcessHeartBeat(void*);
-	void TESTSCENARIO(void*);
-	void DistanceSensor(void*);
 /*
  * If stdint.h cannot be located then:
  *   + If using GCC ensure the -nostdint options is *not* being used.

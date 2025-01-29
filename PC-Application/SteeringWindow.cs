@@ -404,13 +404,14 @@ namespace PC_Application
                 return;
 
             if (motorID == 0 && this.PB_Ignition.Enabled)
-            {
                 this.PB_Pointer.BackColor = Color.Transparent;
-            }
+
+            else if (this.PB_Pointer.Enabled && this.PB_Ignition.Enabled &&
+                4 <= motorID && motorID <= 6 && this.mainWindow.DistanceToObject <= 10)
+                this.PB_Pointer.BackColor = Color.DarkRed;
+
             else if (this.PB_Pointer.Enabled && this.PB_Ignition.Enabled)
-            {
                 this.PB_Pointer.BackColor = Color.Lime;
-            }
 
             this.mainWindow.SendCommand("CMD" + (motorID + 1));
         }
@@ -516,6 +517,15 @@ namespace PC_Application
         {
             this.commandState_ABS = false;
             this.CarCommand_ABS();
+        }
+
+        public void CheckDistanceCollision()
+        {
+            if (this.PB_Pointer.Enabled && this.PB_Ignition.Enabled &&
+                (this.pointerAngle < -90 || this.pointerAngle > 90) &&
+                this.mainWindow.DistanceToObject <= 10 &&
+                this.PB_Pointer.BackColor == Color.Lime)
+                this.PB_Pointer.BackColor = Color.DarkRed;
         }
     }
 }

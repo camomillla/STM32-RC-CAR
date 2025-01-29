@@ -221,6 +221,7 @@ void MotorABS(MOTOR* m) {
 
 void SetMotorSpeed(MOTOR* m, uint16_t speed)
 {
+
 	switch (m->direction) {
 	case DEFAULT:
 		if(speed >= m->motorFront->Instance->ARR)
@@ -269,6 +270,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim->Instance == TIM6)
 	{
+
+
+		if (motorA.direction == BACK &&
+				motorB.direction == BACK &&
+				Distance <= 10) {
+			MotorABS(&motorA);
+			MotorABS(&motorB);
+			return;
+		}
+
 		motor_calculate_speed(&motorA);
 		motor_calculate_speed(&motorB);
 	}
@@ -293,14 +304,13 @@ void Set_PWM_Frequency(uint32_t frequency) {
 }
 
 int hornOn = 0;
+int indicationOverride = 0;
 int engineOn = 0;
 
 void ProcessCommand(uint8_t* cmd) {
 
 			if (strcmp((char*)cmd, "INIT") == 0) {
-				HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-				HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-				HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+
 			}
 
 			else if (strcmp((char*)cmd, "CMD0") == 0) {
@@ -394,12 +404,6 @@ void ProcessCommand(uint8_t* cmd) {
 	                    // Operacja dla MOTORR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR3 selected\r\n", 18, HAL_MAX_DELAY);
 
-	                    if (Distance <= 10) {
-	                    	MotorABS(&motorA);
-	                    	MotorABS(&motorB);
-	                    	break;
-	                    }
-
 	                    motor_set_speed(&motorA, BACK, 100);
 	                    motor_set_speed(&motorB, FRONT, 100);
 	                    break;
@@ -407,24 +411,12 @@ void ProcessCommand(uint8_t* cmd) {
 	                    // Operacja dla MOTORBR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR4 selected\r\n", 18, HAL_MAX_DELAY);
 
-	                    if (Distance <= 10) {
-	                    	MotorABS(&motorA);
-	                    	MotorABS(&motorB);
-	                    	break;
-	                    }
-
 	                    motor_set_speed(&motorA, BACK, 50);
 	                    motor_set_speed(&motorB, BACK, 100);
 	                    break;
 	                case 6:
 	                    // Operacja dla MOTORB
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR5 selected\r\n", 18, HAL_MAX_DELAY);
-
-	                    if (Distance <= 10) {
-	                    	MotorABS(&motorA);
-	                    	MotorABS(&motorB);
-	                    	break;
-	                    }
 
 	                    motor_set_speed(&motorA, BACK, 100);
 	                    motor_set_speed(&motorB, BACK, 100);
@@ -460,6 +452,59 @@ void ProcessCommand(uint8_t* cmd) {
 	    }
 }
 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	static uint32_t lastPressTime = 0;
+
+	if (GPIO_Pin == GPIO_PIN_13) {
+		uint32_t currentTime = HAL_GetTick();  // Pobierz aktualny czas
+
+		if (currentTime - lastPressTime > 200) {  // 200 ms debounce
+			indicationOverride = !indicationOverride;
+
+			HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+			HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+			HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+
+			lastPressTime = currentTime;  // Zaktualizuj czas ostatniego wciśnięcia
+		}
+	}
+}
+
+void DistanceIndicator(void*) {
+
+	while (1) {
+
+		if (!indicationOverride)
+			continue;
+
+		if (hornOn)
+			continue;
+
+		if (Distance > 10 && Distance <= 30) {
+		    Set_PWM_Frequency(1000);
+		    HAL_GPIO_TogglePin(DISTANCE_INDICATOR_GPIO_Port, DISTANCE_INDICATOR_Pin);
+		    osDelay(500);
+		    Set_PWM_Frequency(0);
+		    HAL_GPIO_TogglePin(DISTANCE_INDICATOR_GPIO_Port, DISTANCE_INDICATOR_Pin);
+		    osDelay(500);
+		}
+
+		else if (Distance > 0 && Distance <= 10) {
+		    Set_PWM_Frequency(1000);
+		    HAL_GPIO_TogglePin(DISTANCE_INDICATOR_GPIO_Port, DISTANCE_INDICATOR_Pin);
+		    osDelay(100);
+		    Set_PWM_Frequency(0);
+		    HAL_GPIO_TogglePin(DISTANCE_INDICATOR_GPIO_Port, DISTANCE_INDICATOR_Pin);
+		    osDelay(100);
+		}
+
+		else {
+		    HAL_GPIO_WritePin(DISTANCE_INDICATOR_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+		    Set_PWM_Frequency(0);
+		}
+	}
+}
+
 void DistanceSensor(void*) {
     HAL_TIM_Base_Start(&htim9);
     HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_RESET);
@@ -483,42 +528,6 @@ void DistanceSensor(void*) {
 
         // Obliczanie dystansu
         Distance = (Value2 - Value1) * 0.034 / 2;
-
-        if (Distance > 10 && Distance <= 30) {
-        	// Włączanie dźwięku co 0.5s
-        	Set_PWM_Frequency(1000);
-            HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-            osDelay(500);
-        	Set_PWM_Frequency(0);
-            HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-            osDelay(500);
-        }
-
-        else if (Distance > 0 && Distance <= 10) {
-            // Włączanie dźwięku i miganie diod co 0.1s
-        	Set_PWM_Frequency(1000);
-            HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-            osDelay(100);
-        	Set_PWM_Frequency(0);
-            HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
-            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-            osDelay(100);
-        }
-
-        else {
-            // Wyłączanie diod i buzzera
-            HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-            HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
-            HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
-        }
     }
 }
 
@@ -561,7 +570,9 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	__disable_irq();
+	SCB->VTOR = FLASH_BASE;
+	__enable_irq();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -570,7 +581,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  HAL_Delay(3000) ;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -651,7 +662,7 @@ void SystemClock_Config(void)
   * in the RCC_OscInitTypeDef structure.
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
@@ -695,7 +706,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
 		if (rxIdx == 4) {
 			//HAL_UART_Transmit(&huart3, rxBuff, rxIdx, HAL_MAX_DELAY);
-			ProcessCommand(rxBuff);
+			ProcessCommand(&rxBuff);
 			rxIdx = 0;
 		}
 	}

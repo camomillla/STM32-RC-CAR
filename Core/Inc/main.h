@@ -63,6 +63,7 @@ void Error_Handler(void);
 #define DETECTOR_TRIGGER_GPIO_Port GPIOE
 #define USER_Btn_Pin GPIO_PIN_13
 #define USER_Btn_GPIO_Port GPIOC
+#define USER_Btn_EXTI_IRQn EXTI15_10_IRQn
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOH
 #define RMII_MDC_Pin GPIO_PIN_1
@@ -137,6 +138,8 @@ void Error_Handler(void);
 #define ENCODER_LB2_GPIO_Port GPIOB
 #define LD2_Pin GPIO_PIN_7
 #define LD2_GPIO_Port GPIOB
+#define DISTANCE_INDICATOR_Pin GPIO_PIN_0
+#define DISTANCE_INDICATOR_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
 
