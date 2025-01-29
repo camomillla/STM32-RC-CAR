@@ -179,18 +179,19 @@ namespace PC_Application
                         if (stream == null)
                             return;
 
-                        byte[] buffer = new byte[8]; // 8 bajtów: 2 dla silnika A zmierzona prędkość, 2 dla silnika B zmierzona, 2 dla silnika A zadana prędkość, 2 dla silnika B zadana
+                        byte[] buffer = new byte[10]; // 10 bajtów: 2 dla silnika A zmierzona prędkość, 2 dla silnika B zmierzona, 2 dla silnika A zadana prędkość, 2 dla silnika B zadana, 2 dla odległości
                         int bytesRead;
 
                         bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
 
-                        if (bytesRead == 8) // Oczekujemy 8 bajtów
+                        if (bytesRead == 10) // Oczekujemy 10 bajtów
                         {
                             // Odczytujemy prędkości z otrzymanych bajtów (2 bajty dla każdego silnika)
                             short motorASpeedMeasured = BitConverter.ToInt16(buffer, 0);
                             short motorBSpeedMeasured = BitConverter.ToInt16(buffer, 2);
                             short motorASpeedSet = BitConverter.ToInt16(buffer, 4);
                             short motorBSpeedSet = BitConverter.ToInt16(buffer, 6);
+                            short distance = BitConverter.ToInt16(buffer, 8);
 
                             motorASpeedsMeasured.Add(motorASpeedMeasured);
                             motorBSpeedsMeasured.Add(motorBSpeedMeasured);
@@ -218,6 +219,7 @@ namespace PC_Application
 
                                 Console.WriteLine($"HB:{motorASpeedMeasured};{motorBSpeedMeasured} -> Last Measured: {avgMeasuredSpeed}");
                                 Console.WriteLine($"Set Speeds: {lastMotorASpeedSet}; {lastMotorBSpeedSet}");
+                                Console.WriteLine($"Distance: {distance}");
                                 this.chartsWindow.UpdateCharts(this.motorASpeedsMeasured, this.motorBSpeedsMeasured, this.motorASpeedsSet, this.motorBSpeedsSet);
                             }));
                         }
