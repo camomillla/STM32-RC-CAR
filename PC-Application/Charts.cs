@@ -33,11 +33,11 @@ namespace PC_Application
             if (!this.Focused)
                 return;
 
-            this.mainWindow.steeringWindow.Left = this.mainWindow.Left - this.mainWindow.steeringWindow.Width + 12;
-            this.mainWindow.steeringWindow.Top = this.mainWindow.Top;
+            this.mainWindow.Left = this.mainWindow.steeringWindow.Left + this.mainWindow.steeringWindow.Width - this.mainWindow.Width;
+            this.mainWindow.Top = this.mainWindow.steeringWindow.Top + this.mainWindow.steeringWindow.Height - 4;
 
-            this.mainWindow.Left = this.Left;
-            this.mainWindow.Top = this.Top - this.mainWindow.Height + 4;
+            this.mainWindow.steeringWindow.Left = this.Left + this.Width - 12;
+            this.mainWindow.steeringWindow.Top = this.mainWindow.steeringWindow.Top;
         }
 
         private void InitCharts()
@@ -46,11 +46,9 @@ namespace PC_Application
             this.ChartA.Series.Add("Prędkość mierzona");
             this.ChartA.Series["Prędkość mierzona"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartA.Series["Prędkość mierzona"].Points.Clear();
-
             this.ChartA.Series.Add("Prędkość zadana");
             this.ChartA.Series["Prędkość zadana"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartA.Series["Prędkość zadana"].Points.Clear();
-
             this.ChartA.Titles.Add("Prawy silnik");
 
 
@@ -59,11 +57,9 @@ namespace PC_Application
             this.ChartB.Series.Add("Prędkość mierzona");
             this.ChartB.Series["Prędkość mierzona"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartB.Series["Prędkość mierzona"].Points.Clear();
-
             this.ChartB.Series.Add("Prędkość zadana");
             this.ChartB.Series["Prędkość zadana"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartB.Series["Prędkość zadana"].Points.Clear();
-
             this.ChartB.Titles.Add("Lewy silnik");
 
 
@@ -71,19 +67,15 @@ namespace PC_Application
             this.ChartC.Series.Add("Prędkość mierzona");
             this.ChartC.Series["Prędkość mierzona"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartC.Series["Prędkość mierzona"].Points.Clear();
-
             this.ChartC.Series.Add("Prędkość zadana");
             this.ChartC.Series["Prędkość zadana"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
             this.ChartC.Series["Prędkość zadana"].Points.Clear();
-
             this.ChartC.Titles.Add("Wartość średnia");
         }
 
         public void UpdateCharts(List<int> motorASpeedsMeasured, List<int> motorBSpeedsMeasured,
                                  List<int> motorASpeedsSet, List<int> motorBSpeedsSet)
         {
-
-            // Czyszczenie poprzednich danych
             this.ChartA.Series["Prędkość mierzona"].Points.Clear();
             this.ChartA.Series["Prędkość zadana"].Points.Clear();
             this.ChartB.Series["Prędkość mierzona"].Points.Clear();
@@ -91,27 +83,24 @@ namespace PC_Application
             this.ChartC.Series["Prędkość mierzona"].Points.Clear();
             this.ChartC.Series["Prędkość zadana"].Points.Clear();
 
-            // Dodawanie punktów do wykresu A (lewy silnik)
             for (int i = 0; i < motorASpeedsMeasured.Count; i++)
             {
-                this.ChartA.Series["Prędkość mierzona"].Points.AddXY(i, motorASpeedsMeasured[i]); // Pomiar A
-                this.ChartA.Series["Prędkość zadana"].Points.AddXY(i, motorASpeedsSet[i]); // Zadana prędkość A
+                this.ChartA.Series["Prędkość mierzona"].Points.AddXY(i, motorASpeedsMeasured[i]);
+                this.ChartA.Series["Prędkość zadana"].Points.AddXY(i, motorASpeedsSet[i]);
             }
 
-            // Dodawanie punktów do wykresu B (prawy silnik)
             for (int i = 0; i < motorBSpeedsMeasured.Count; i++)
             {
-                this.ChartB.Series["Prędkość mierzona"].Points.AddXY(i, motorBSpeedsMeasured[i]); // Pomiar B
-                this.ChartB.Series["Prędkość zadana"].Points.AddXY(i, motorBSpeedsSet[i]); // Zadana prędkość B
+                this.ChartB.Series["Prędkość mierzona"].Points.AddXY(i, motorBSpeedsMeasured[i]);
+                this.ChartB.Series["Prędkość zadana"].Points.AddXY(i, motorBSpeedsSet[i]);
             }
 
-            // Dodawanie punktów do wykresu C (średnia)
             for (int i = 0; i < motorASpeedsMeasured.Count; i++)
             {
                 int avgMeasured = (motorASpeedsMeasured[i] + motorBSpeedsMeasured[i]) / 2;
                 int avgSet = (motorASpeedsSet[i] + motorBSpeedsSet[i]) / 2;
-                this.ChartC.Series["Prędkość mierzona"].Points.AddXY(i, avgMeasured); // Średnia zmierzona
-                this.ChartC.Series["Prędkość zadana"].Points.AddXY(i, avgSet); // Średnia zadana
+                this.ChartC.Series["Prędkość mierzona"].Points.AddXY(i, avgMeasured);
+                this.ChartC.Series["Prędkość zadana"].Points.AddXY(i, avgSet);
             }
         }
     }

@@ -120,11 +120,11 @@ namespace PC_Application
             if (!this.Focused)
                 return;
 
-            this.mainWindow.Left = this.Right - 12;
-            this.mainWindow.Top = this.Top;
+            this.mainWindow.Left = this.Left + this.Width - this.mainWindow.Width;
+            this.mainWindow.Top = this.Top + this.Height - 4;
 
-            this.mainWindow.chartsWindow.Left = this.mainWindow.Left;
-            this.mainWindow.chartsWindow.Top = this.mainWindow.Top + this.mainWindow.Height - 4;
+            this.mainWindow.chartsWindow.Left = this.Left + this.Width - 12;
+            this.mainWindow.chartsWindow.Top = this.Top;
         }
 
         private Boolean CheckKeys(System.Windows.Forms.KeyEventArgs e)

@@ -33,6 +33,7 @@
             this.Button_Connect = new System.Windows.Forms.Button();
             this.CB_Bluetooth = new System.Windows.Forms.ComboBox();
             this.Button_Search = new System.Windows.Forms.Button();
+            this.Button_Export = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Status)).BeginInit();
             this.SuspendLayout();
             // 
@@ -85,11 +86,23 @@
             this.Button_Search.UseVisualStyleBackColor = true;
             this.Button_Search.Click += new System.EventHandler(this.Button_Search_Click);
             // 
+            // Button_Export
+            // 
+            this.Button_Export.Location = new System.Drawing.Point(272, 128);
+            this.Button_Export.Name = "Button_Export";
+            this.Button_Export.Size = new System.Drawing.Size(100, 27);
+            this.Button_Export.TabIndex = 9;
+            this.Button_Export.Text = "Export CSV";
+            this.Button_Export.UseVisualStyleBackColor = true;
+            this.Button_Export.Click += new System.EventHandler(this.Button_Export_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 217);
+            this.BackColor = System.Drawing.Color.BlanchedAlmond;
+            this.ClientSize = new System.Drawing.Size(384, 167);
+            this.Controls.Add(this.Button_Export);
             this.Controls.Add(this.Button_Search);
             this.Controls.Add(this.CB_Bluetooth);
             this.Controls.Add(this.Button_Connect);
@@ -112,6 +125,7 @@
         private System.Windows.Forms.Button Button_Connect;
         private System.Windows.Forms.ComboBox CB_Bluetooth;
         private System.Windows.Forms.Button Button_Search;
+        private System.Windows.Forms.Button Button_Export;
     }
 }
 

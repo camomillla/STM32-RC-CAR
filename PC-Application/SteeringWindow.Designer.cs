@@ -52,7 +52,7 @@
             this.PB_ABS.BackColor = System.Drawing.Color.Transparent;
             this.PB_ABS.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_ABS.Image = global::PC_Application.Properties.Resources.ABS;
-            this.PB_ABS.Location = new System.Drawing.Point(632, 12);
+            this.PB_ABS.Location = new System.Drawing.Point(402, 12);
             this.PB_ABS.Name = "PB_ABS";
             this.PB_ABS.Size = new System.Drawing.Size(128, 128);
             this.PB_ABS.TabIndex = 10;
@@ -64,7 +64,7 @@
             // 
             this.PB_CarKey.BackColor = System.Drawing.Color.Transparent;
             this.PB_CarKey.Image = global::PC_Application.Properties.Resources.CarKey;
-            this.PB_CarKey.Location = new System.Drawing.Point(632, 140);
+            this.PB_CarKey.Location = new System.Drawing.Point(12, 12);
             this.PB_CarKey.Name = "PB_CarKey";
             this.PB_CarKey.Size = new System.Drawing.Size(128, 128);
             this.PB_CarKey.TabIndex = 9;
@@ -77,7 +77,7 @@
             this.PB_Ignition.BackColor = System.Drawing.Color.Transparent;
             this.PB_Ignition.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Ignition.Image = ((System.Drawing.Image)(resources.GetObject("PB_Ignition.Image")));
-            this.PB_Ignition.Location = new System.Drawing.Point(632, 140);
+            this.PB_Ignition.Location = new System.Drawing.Point(12, 12);
             this.PB_Ignition.Name = "PB_Ignition";
             this.PB_Ignition.Size = new System.Drawing.Size(128, 128);
             this.PB_Ignition.TabIndex = 8;
@@ -88,7 +88,7 @@
             this.PB_Lights.BackColor = System.Drawing.Color.Transparent;
             this.PB_Lights.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Lights.Image = global::PC_Application.Properties.Resources.Lights;
-            this.PB_Lights.Location = new System.Drawing.Point(632, 281);
+            this.PB_Lights.Location = new System.Drawing.Point(140, 12);
             this.PB_Lights.Name = "PB_Lights";
             this.PB_Lights.Size = new System.Drawing.Size(128, 128);
             this.PB_Lights.TabIndex = 7;
@@ -100,7 +100,7 @@
             this.PB_Horn.BackColor = System.Drawing.Color.Transparent;
             this.PB_Horn.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Horn.Image = global::PC_Application.Properties.Resources.Horn;
-            this.PB_Horn.Location = new System.Drawing.Point(632, 409);
+            this.PB_Horn.Location = new System.Drawing.Point(274, 12);
             this.PB_Horn.Name = "PB_Horn";
             this.PB_Horn.Size = new System.Drawing.Size(128, 128);
             this.PB_Horn.TabIndex = 6;
@@ -113,7 +113,7 @@
             this.PB_Speedometer_Arrow.BackColor = System.Drawing.Color.Transparent;
             this.PB_Speedometer_Arrow.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.PB_Speedometer_Arrow.Image = global::PC_Application.Properties.Resources.Speedometer_Arrow;
-            this.PB_Speedometer_Arrow.Location = new System.Drawing.Point(370, 12);
+            this.PB_Speedometer_Arrow.Location = new System.Drawing.Point(12, 146);
             this.PB_Speedometer_Arrow.Name = "PB_Speedometer_Arrow";
             this.PB_Speedometer_Arrow.Size = new System.Drawing.Size(256, 256);
             this.PB_Speedometer_Arrow.TabIndex = 5;
@@ -124,7 +124,7 @@
             this.PB_Speedometer_Back.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.PB_Speedometer_Back.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Speedometer_Back.Image = global::PC_Application.Properties.Resources.Speedometer;
-            this.PB_Speedometer_Back.Location = new System.Drawing.Point(370, 12);
+            this.PB_Speedometer_Back.Location = new System.Drawing.Point(12, 146);
             this.PB_Speedometer_Back.Name = "PB_Speedometer_Back";
             this.PB_Speedometer_Back.Size = new System.Drawing.Size(256, 256);
             this.PB_Speedometer_Back.TabIndex = 4;
@@ -136,7 +136,7 @@
             this.PB_Pointer.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.PB_Pointer.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.PB_Pointer.Image = global::PC_Application.Properties.Resources.Pointer;
-            this.PB_Pointer.Location = new System.Drawing.Point(370, 281);
+            this.PB_Pointer.Location = new System.Drawing.Point(274, 146);
             this.PB_Pointer.Name = "PB_Pointer";
             this.PB_Pointer.Size = new System.Drawing.Size(256, 256);
             this.PB_Pointer.TabIndex = 1;
@@ -146,7 +146,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 561);
+            this.BackColor = System.Drawing.Color.BlanchedAlmond;
+            this.ClientSize = new System.Drawing.Size(534, 408);
             this.ControlBox = false;
             this.Controls.Add(this.PB_ABS);
             this.Controls.Add(this.PB_CarKey);

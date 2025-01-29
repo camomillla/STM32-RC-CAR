@@ -50,7 +50,7 @@ namespace PC_Application
             this.btDeviceInfos = new BluetoothDeviceInfo[32];
 
             MainWindow.connectionStatus = false;
-            this.Location = new Point(this.steeringWindow.Width - 12, 0);
+            this.Location = new Point(this.steeringWindow.Width - this.Width, this.steeringWindow.Height);
         }
 
         private void MainWindow_LocationChanged(object sender, EventArgs e)
@@ -58,11 +58,11 @@ namespace PC_Application
             if (this.steeringWindow.Focused || this.chartsWindow.Focused)
                 return;
 
-            this.steeringWindow.Left = this.Left - this.steeringWindow.Width + 12;
-            this.steeringWindow.Top = this.Top;
+            this.steeringWindow.Left = this.Left - this.steeringWindow.Width + this.Width;
+            this.steeringWindow.Top = this.Top - this.steeringWindow.Height + 4;
 
-            this.chartsWindow.Left = this.Left;
-            this.chartsWindow.Top = this.Top + this.Height - 4;
+            this.chartsWindow.Left = this.steeringWindow.Left + this.steeringWindow.Width - 12;
+            this.chartsWindow.Top = this.steeringWindow.Top;
         }
 
         private void Button_Search_Click(object sender, EventArgs e)
@@ -231,6 +231,9 @@ namespace PC_Application
             }
         }
 
+        private void Button_Export_Click(object sender, EventArgs e)
+        {
 
+        }
     }
 }
