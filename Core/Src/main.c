@@ -56,6 +56,10 @@ uint8_t rxData[1];
 char rxBuff[64];
 uint8_t rxIdx = 0;
 
+uint32_t pMillis,
+	Value1;
+	Value2;
+	Distance;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -389,18 +393,39 @@ void ProcessCommand(uint8_t* cmd) {
 	                case 4:
 	                    // Operacja dla MOTORR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR3 selected\r\n", 18, HAL_MAX_DELAY);
+
+	                    if (Distance <= 10) {
+	                    	MotorABS(&motorA);
+	                    	MotorABS(&motorB);
+	                    	break;
+	                    }
+
 	                    motor_set_speed(&motorA, BACK, 100);
 	                    motor_set_speed(&motorB, FRONT, 100);
 	                    break;
 	                case 5:
 	                    // Operacja dla MOTORBR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR4 selected\r\n", 18, HAL_MAX_DELAY);
+
+	                    if (Distance <= 10) {
+	                    	MotorABS(&motorA);
+	                    	MotorABS(&motorB);
+	                    	break;
+	                    }
+
 	                    motor_set_speed(&motorA, BACK, 50);
 	                    motor_set_speed(&motorB, BACK, 100);
 	                    break;
 	                case 6:
 	                    // Operacja dla MOTORB
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR5 selected\r\n", 18, HAL_MAX_DELAY);
+
+	                    if (Distance <= 10) {
+	                    	MotorABS(&motorA);
+	                    	MotorABS(&motorB);
+	                    	break;
+	                    }
+
 	                    motor_set_speed(&motorA, BACK, 100);
 	                    motor_set_speed(&motorB, BACK, 100);
 	                    break;
@@ -435,35 +460,68 @@ void ProcessCommand(uint8_t* cmd) {
 	    }
 }
 
-uint32_t pMillis,
-	Value1;
-	Value2;
-	Distance;
-
 void DistanceSensor(void*) {
-	HAL_TIM_Base_Start(&htim9);
-	HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_RESET);
+    HAL_TIM_Base_Start(&htim9);
+    HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_RESET);
 
-	while (1) {
-		HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_SET);
-		__HAL_TIM_SET_COUNTER(&htim9, 0);
-		while (__HAL_TIM_GET_COUNTER (&htim9) < 10);
-		HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_RESET);
+    while (1) {
+        // Wysyłanie impulsu trigger
+        HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_SET);
+        __HAL_TIM_SET_COUNTER(&htim9, 0);
+        while (__HAL_TIM_GET_COUNTER(&htim9) < 10);
+        HAL_GPIO_WritePin(DETECTOR_TRIGGER_GPIO_Port, DETECTOR_TRIGGER_Pin, GPIO_PIN_RESET);
 
-		pMillis = HAL_GetTick();
+        // Pomiar czasu narastającego zbocza ECHO
+        pMillis = HAL_GetTick();
+        while (!(HAL_GPIO_ReadPin(DETECTOR_ECHO_GPIO_Port, DETECTOR_ECHO_Pin)) && pMillis + 10 > HAL_GetTick());
+        Value1 = __HAL_TIM_GET_COUNTER(&htim9);
 
-		while (!(HAL_GPIO_ReadPin (DETECTOR_ECHO_GPIO_Port, DETECTOR_ECHO_Pin)) && pMillis + 10 >  HAL_GetTick());
-		Value1 = __HAL_TIM_GET_COUNTER (&htim9);
+        // Pomiar czasu opadającego zbocza ECHO
+        pMillis = HAL_GetTick();
+        while ((HAL_GPIO_ReadPin(DETECTOR_ECHO_GPIO_Port, DETECTOR_ECHO_Pin)) && pMillis + 50 > HAL_GetTick());
+        Value2 = __HAL_TIM_GET_COUNTER(&htim9);
 
-		pMillis = HAL_GetTick();
+        // Obliczanie dystansu
+        Distance = (Value2 - Value1) * 0.034 / 2;
 
-		while ((HAL_GPIO_ReadPin (DETECTOR_ECHO_GPIO_Port, DETECTOR_ECHO_Pin)) && pMillis + 50 > HAL_GetTick());
-		Value2 = __HAL_TIM_GET_COUNTER (&htim9);
+        if (Distance > 10 && Distance <= 30) {
+        	// Włączanie dźwięku co 0.5s
+        	Set_PWM_Frequency(1000);
+            HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+            osDelay(500);
+        	Set_PWM_Frequency(0);
+            HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+            osDelay(500);
+        }
 
-		Distance = (Value2-Value1)* 0.034/2;
-		osDelay(50);
-	}
+        else if (Distance > 0 && Distance <= 10) {
+            // Włączanie dźwięku i miganie diod co 0.1s
+        	Set_PWM_Frequency(1000);
+            HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+            osDelay(100);
+        	Set_PWM_Frequency(0);
+            HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+            HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+            HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+            osDelay(100);
+        }
+
+        else {
+            // Wyłączanie diod i buzzera
+            HAL_GPIO_WritePin(LD1_GPIO_Port, LD1_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
+            HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_1);
+        }
+    }
 }
+
 
 
 void ProcessHeartBeat(void* argument) {

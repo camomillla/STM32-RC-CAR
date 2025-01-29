@@ -74,12 +74,6 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_4, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : DETECTOR_ECHO_Pin */
-  GPIO_InitStruct.Pin = DETECTOR_ECHO_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(DETECTOR_ECHO_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pin : DETECTOR_TRIGGER_Pin */
   GPIO_InitStruct.Pin = DETECTOR_TRIGGER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
