@@ -57,7 +57,7 @@
             series1.Legend = "Legend1";
             series1.Name = "Series1";
             this.ChartA.Series.Add(series1);
-            this.ChartA.Size = new System.Drawing.Size(360, 300);
+            this.ChartA.Size = new System.Drawing.Size(600, 200);
             this.ChartA.TabIndex = 0;
             this.ChartA.Text = "Lewy silnik";
             // 
@@ -67,13 +67,13 @@
             this.ChartB.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
             this.ChartB.Legends.Add(legend2);
-            this.ChartB.Location = new System.Drawing.Point(380, 12);
+            this.ChartB.Location = new System.Drawing.Point(12, 218);
             this.ChartB.Name = "ChartB";
             series2.ChartArea = "ChartArea1";
             series2.Legend = "Legend1";
             series2.Name = "Series1";
             this.ChartB.Series.Add(series2);
-            this.ChartB.Size = new System.Drawing.Size(360, 300);
+            this.ChartB.Size = new System.Drawing.Size(600, 200);
             this.ChartB.TabIndex = 1;
             this.ChartB.Text = "Prawy silnik";
             // 
@@ -83,13 +83,13 @@
             this.ChartC.ChartAreas.Add(chartArea3);
             legend3.Name = "Legend1";
             this.ChartC.Legends.Add(legend3);
-            this.ChartC.Location = new System.Drawing.Point(746, 12);
+            this.ChartC.Location = new System.Drawing.Point(12, 424);
             this.ChartC.Name = "ChartC";
             series3.ChartArea = "ChartArea1";
             series3.Legend = "Legend1";
             series3.Name = "Series1";
             this.ChartC.Series.Add(series3);
-            this.ChartC.Size = new System.Drawing.Size(360, 300);
+            this.ChartC.Size = new System.Drawing.Size(600, 200);
             this.ChartC.TabIndex = 2;
             this.ChartC.Text = "Średnia";
             // 
@@ -97,7 +97,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1118, 345);
+            this.ClientSize = new System.Drawing.Size(622, 648);
             this.ControlBox = false;
             this.Controls.Add(this.ChartC);
             this.Controls.Add(this.ChartB);

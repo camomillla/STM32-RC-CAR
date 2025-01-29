@@ -164,7 +164,7 @@ namespace PC_Application
         private List<int> motorBSpeedsMeasured = new List<int>();
         private List<int> motorASpeedsSet = new List<int>();
         private List<int> motorBSpeedsSet = new List<int>();
-        private const int maxHistorySize = 1000;
+        private const int maxHistorySize = 100;
 
         private async Task ReceiveDataAsync()
         {
@@ -205,18 +205,19 @@ namespace PC_Application
                             if (motorBSpeedsSet.Count > maxHistorySize)
                                 motorBSpeedsSet.RemoveAt(0);
 
-                            double avgMotorASpeedMeasured = motorASpeedsMeasured.Average();
-                            double avgMotorBSpeedMeasured = motorBSpeedsMeasured.Average();
-                            double avgMotorASpeedSet = motorASpeedsSet.Average();
-                            double avgMotorBSpeedSet = motorBSpeedsSet.Average();
+                            double lastMotorASpeedMeasured = motorASpeedsMeasured.Last();
+                            double lastMotorBSpeedMeasured = motorBSpeedsMeasured.Last();
+                            double lastMotorASpeedSet = motorASpeedsSet.Last();
+                            double lastMotorBSpeedSet = motorBSpeedsSet.Last();
 
                             this.Invoke(new Action(() =>
                             {
-                                double avgMeasuredSpeed = (avgMotorASpeedMeasured + avgMotorBSpeedMeasured) / 2.0F;
+                                double avgMeasuredSpeed = (lastMotorASpeedMeasured + lastMotorBSpeedMeasured) / 2.0F;
                                 this.steeringWindow.SetSpeedometer(((int)avgMeasuredSpeed) / 125.0F * 270.0F);
 
-                                Console.WriteLine($"HB:{motorASpeedMeasured};{motorBSpeedMeasured} -> AVG Measured: {avgMeasuredSpeed}");
-                                Console.WriteLine($"Set Speeds: {motorASpeedSet}; {motorBSpeedSet}");
+                                Console.WriteLine($"HB:{motorASpeedMeasured};{motorBSpeedMeasured} -> Last Measured: {avgMeasuredSpeed}");
+                                Console.WriteLine($"Set Speeds: {lastMotorASpeedSet}; {lastMotorBSpeedSet}");
+                                this.chartsWindow.UpdateCharts(this.motorASpeedsMeasured, this.motorBSpeedsMeasured, this.motorASpeedsSet, this.motorBSpeedsSet);
                             }));
                         }
                     }
