@@ -160,44 +160,64 @@ namespace PC_Application
             this.btClient.GetStream().Flush();
         }
 
+        private List<int> motorASpeedsMeasured = new List<int>();
+        private List<int> motorBSpeedsMeasured = new List<int>();
+        private List<int> motorASpeedsSet = new List<int>();
+        private List<int> motorBSpeedsSet = new List<int>();
+        private const int maxHistorySize = 1000;
+
         private async Task ReceiveDataAsync()
         {
             try
             {
                 while (MainWindow.connectionStatus && this.btClient != null && this.btClient.Connected)
                 {
-                    //if (this.btClient != null && this.btClient.Connected)
+                    if (this.btClient != null && this.btClient.Connected)
                     {
                         NetworkStream stream = this.btClient.GetStream();
                         if (stream == null)
                             return;
 
-                        byte[] buffer = new byte[1024];
+                        byte[] buffer = new byte[8]; // 8 bajtów: 2 dla silnika A zmierzona prędkość, 2 dla silnika B zmierzona, 2 dla silnika A zadana prędkość, 2 dla silnika B zadana
                         int bytesRead;
 
                         bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
 
-                        if (bytesRead > 0)
+                        if (bytesRead == 8) // Oczekujemy 8 bajtów
                         {
-                            string receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                            // Odczytujemy prędkości z otrzymanych bajtów (2 bajty dla każdego silnika)
+                            short motorASpeedMeasured = BitConverter.ToInt16(buffer, 0);
+                            short motorBSpeedMeasured = BitConverter.ToInt16(buffer, 2);
+                            short motorASpeedSet = BitConverter.ToInt16(buffer, 4);
+                            short motorBSpeedSet = BitConverter.ToInt16(buffer, 6);
 
-                            if (receivedData.StartsWith("HB:"))
+                            motorASpeedsMeasured.Add(motorASpeedMeasured);
+                            motorBSpeedsMeasured.Add(motorBSpeedMeasured);
+                            motorASpeedsSet.Add(motorASpeedSet);
+                            motorBSpeedsSet.Add(motorBSpeedSet);
+
+                            if (motorASpeedsMeasured.Count > maxHistorySize)
+                                motorASpeedsMeasured.RemoveAt(0);
+                            if (motorBSpeedsMeasured.Count > maxHistorySize)
+                                motorBSpeedsMeasured.RemoveAt(0);
+                            if (motorASpeedsSet.Count > maxHistorySize)
+                                motorASpeedsSet.RemoveAt(0);
+                            if (motorBSpeedsSet.Count > maxHistorySize)
+                                motorBSpeedsSet.RemoveAt(0);
+
+                            double avgMotorASpeedMeasured = motorASpeedsMeasured.Average();
+                            double avgMotorBSpeedMeasured = motorBSpeedsMeasured.Average();
+                            double avgMotorASpeedSet = motorASpeedsSet.Average();
+                            double avgMotorBSpeedSet = motorBSpeedsSet.Average();
+
+                            this.Invoke(new Action(() =>
                             {
-                                string speedString = receivedData.Substring(3);
-                                string[] speeds = speedString.Split('/');
-                                if (speeds.Length == 2 &&
-                                    int.TryParse(speeds[0], out int motorASpeed) &&
-                                    int.TryParse(speeds[1], out int motorBSpeed))
-                                {
-                                    this.Invoke(new Action(() =>
-                                    {
-                                        this.steeringWindow.SetSpeedometer(((motorASpeed + motorBSpeed) / 2) / 125.0F * 270.0F);
+                                double avgMeasuredSpeed = (avgMotorASpeedMeasured + avgMotorBSpeedMeasured) / 2.0F;
+                                this.steeringWindow.SetSpeedometer(((int)avgMeasuredSpeed) / 125.0F * 270.0F);
 
-                                        Console.WriteLine($"HB:{motorASpeed}/{motorBSpeed}={(motorASpeed + motorBSpeed) / 2}");
-                                    }));
-                                }
-                            }
-
+                                Console.WriteLine($"HB:{motorASpeedMeasured};{motorBSpeedMeasured} -> AVG Measured: {avgMeasuredSpeed}");
+                                Console.WriteLine($"Set Speeds: {motorASpeedSet}; {motorBSpeedSet}");
+                            }));
                         }
                     }
 
@@ -209,5 +229,7 @@ namespace PC_Application
                 MessageBox.Show($"Error receiving data: {ex.Message}");
             }
         }
+
+
     }
 }

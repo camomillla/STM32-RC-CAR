@@ -440,14 +440,9 @@ void ProcessHeartBeat(void* argument) {
     	if (!engineOn)
     		continue;
 
-    	char message[16];  // Bufor na wiadomość, np. "HB:123"
-    	int length;
+    	int16_t data[4] = {motorA.measured_speed, motorB.measured_speed, motorA.set_speed, motorB.set_speed};
+    	HAL_UART_Transmit(&huart2, (uint8_t*)data, sizeof(data), HAL_MAX_DELAY);
 
-    	// Formatowanie wiadomości
-    	length = snprintf(message, sizeof(message), "HB:%d/%d\r\n", motorA.measured_speed, motorB.measured_speed);
-
-    	// Wysyłanie przez UART2
-    	HAL_UART_Transmit(&huart2, (uint8_t*)message, length, HAL_MAX_DELAY);
         osDelay(100);
     }
 }
