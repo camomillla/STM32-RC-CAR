@@ -122,6 +122,9 @@ namespace PC_Application
 
             this.mainWindow.Left = this.Right - 12;
             this.mainWindow.Top = this.Top;
+
+            this.mainWindow.chartsWindow.Left = this.mainWindow.Left;
+            this.mainWindow.chartsWindow.Top = this.mainWindow.Top + this.mainWindow.Height - 4;
         }
 
         private Boolean CheckKeys(System.Windows.Forms.KeyEventArgs e)
@@ -130,7 +133,8 @@ namespace PC_Application
             if (e.KeyCode == Keys.Enter ||
                 e.KeyCode == Keys.H ||
                 e.KeyCode == Keys.F ||
-                e.KeyCode == Keys.ShiftKey) return true;
+                e.KeyCode == Keys.ShiftKey ||
+                e.KeyCode == Keys.Space) return true;
 
             if (e.KeyCode != Keys.Up &&
                 e.KeyCode != Keys.Down &&
@@ -152,6 +156,9 @@ namespace PC_Application
 
             if (e.KeyCode == Keys.ShiftKey)
                 this.PB_CarKey_MouseUp(null, null);
+
+            if (e.KeyCode == Keys.Space)
+                this.PB_ABS_MouseUp(null, null);
 
             if (!Keyboard.IsKeyDown(Key.Up) && Keyboard.IsKeyDown(Key.Left) && isKeyUpPressed && isKeyLeftPressed)
                 this.CarCommand_Motor(7);
@@ -216,6 +223,9 @@ namespace PC_Application
 
             if (e.KeyCode == Keys.ShiftKey)
                 this.PB_CarKey_MouseDown(null, null);
+
+            if (e.KeyCode == Keys.Space)
+                this.PB_ABS_MouseDown(null, null);
 
             if ((!isKeyUpPressed || !isKeyLeftPressed) && Keyboard.IsKeyDown(Key.Up) && Keyboard.IsKeyDown(Key.Left))
             {
@@ -358,6 +368,7 @@ namespace PC_Application
         private Boolean commandState_Lights = false;
         private Boolean commandState_Horn = false;
         private Boolean commandState_Engine = false;
+        private Boolean commandState_ABS = false;
 
         private void CarCommand_Lights()
         {
@@ -431,6 +442,20 @@ namespace PC_Application
             }
         }
 
+        private void CarCommand_ABS()
+        {
+            if (!this.PB_ABS.Enabled)
+                return;
+
+            if (!this.commandState_ABS)
+                this.PB_ABS.BackColor = Color.Transparent;
+            else
+            {
+                this.PB_ABS.BackColor = Color.Lime;
+                this.mainWindow.SendCommand("CMDC");
+            }
+        }
+
         private void PB_Lights_Click(object sender, EventArgs e)
         {
             this.CarCommand_Lights();
@@ -473,6 +498,24 @@ namespace PC_Application
         private void PB_CarKey_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             this.commandState_Engine = false;
+        }
+
+        private void PB_ABS_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (!this.PB_ABS.Enabled)
+                return;
+
+            if (!this.commandState_Engine)
+            {
+                this.commandState_ABS = true;
+                this.CarCommand_ABS();
+            }
+        }
+
+        private void PB_ABS_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            this.commandState_ABS = false;
+            this.CarCommand_ABS();
         }
     }
 }

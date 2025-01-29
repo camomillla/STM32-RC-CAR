@@ -13,3 +13,4 @@ E:\DeathProject\STM32-RC-CAR\PC-Application\bin\Debug\InTheHand.Net.Personal.dll
 E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Appli.728D6805.Up2Date
 E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.exe
 E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC-Application.pdb
+E:\DeathProject\STM32-RC-CAR\PC-Application\obj\Debug\PC_Application.Charts.resources

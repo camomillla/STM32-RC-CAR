@@ -23,15 +23,13 @@ namespace PC_Application
 {
     public partial class MainWindow : Form
     {
-        private Boolean IsActive;
-
         private BluetoothClient btClient;
         private BluetoothEndPoint btEndPoint;
         private BluetoothDeviceInfo[] btDeviceInfos;
 
         public static Boolean connectionStatus;
-        private SteeringWindow steeringWindow;
-        private Guid btGuid;
+        public SteeringWindow steeringWindow;
+        public Charts chartsWindow;
 
         public MainWindow()
         {
@@ -42,7 +40,9 @@ namespace PC_Application
         public void Init()
         {
             this.steeringWindow = new SteeringWindow(this);
+            this.chartsWindow = new Charts(this);
             this.steeringWindow.Show();
+            this.chartsWindow.Show();
 
             this.LocationChanged += MainWindow_LocationChanged;
 
@@ -55,11 +55,14 @@ namespace PC_Application
 
         private void MainWindow_LocationChanged(object sender, EventArgs e)
         {
-            if (this.steeringWindow.Focused)
+            if (this.steeringWindow.Focused || this.chartsWindow.Focused)
                 return;
 
             this.steeringWindow.Left = this.Left - this.steeringWindow.Width + 12;
             this.steeringWindow.Top = this.Top;
+
+            this.chartsWindow.Left = this.Left;
+            this.chartsWindow.Top = this.Top + this.Height - 4;
         }
 
         private void Button_Search_Click(object sender, EventArgs e)
@@ -103,6 +106,7 @@ namespace PC_Application
             MainWindow.connectionStatus = true;
             this.steeringWindow.EnableControls(true);
 
+            this.SendCommand("INIT");
             await ReceiveDataAsync();
         }
 
@@ -110,6 +114,9 @@ namespace PC_Application
         {
             if (this.btClient == null)
                 throw new Exception("Could not disconnect the device!");
+
+            this.SendCommand("INIT");
+            MainWindow.connectionStatus = false;
 
             if (this.btClient.Connected)
                 this.btClient.GetStream()?.Close();
@@ -120,7 +127,6 @@ namespace PC_Application
             this.CB_Bluetooth.Enabled = true;
             this.Button_Search.Enabled = true;
             this.PB_Status.BackgroundImage = global::PC_Application.Properties.Resources.StopControl;
-            MainWindow.connectionStatus = false;
             this.steeringWindow.DisableControls();
         }
 
@@ -158,11 +164,13 @@ namespace PC_Application
         {
             try
             {
-                while (MainWindow.connectionStatus)
+                while (MainWindow.connectionStatus && this.btClient != null && this.btClient.Connected)
                 {
-                    if (this.btClient != null && this.btClient.Connected)
+                    //if (this.btClient != null && this.btClient.Connected)
                     {
                         NetworkStream stream = this.btClient.GetStream();
+                        if (stream == null)
+                            return;
 
                         byte[] buffer = new byte[1024];
                         int bytesRead;
@@ -176,15 +184,20 @@ namespace PC_Application
                             if (receivedData.StartsWith("HB:"))
                             {
                                 string speedString = receivedData.Substring(3);
-                                if (int.TryParse(speedString, out int speed))
+                                string[] speeds = speedString.Split('/');
+                                if (speeds.Length == 2 &&
+                                    int.TryParse(speeds[0], out int motorASpeed) &&
+                                    int.TryParse(speeds[1], out int motorBSpeed))
                                 {
                                     this.Invoke(new Action(() =>
                                     {
-                                        this.steeringWindow.SetSpeedometer(speed / 125.0F * 270.0F);
-                                        Console.WriteLine($"HB:{speed}");
+                                        this.steeringWindow.SetSpeedometer(((motorASpeed + motorBSpeed) / 2) / 125.0F * 270.0F);
+
+                                        Console.WriteLine($"HB:{motorASpeed}/{motorBSpeed}={(motorASpeed + motorBSpeed) / 2}");
                                     }));
                                 }
                             }
+
                         }
                     }
 

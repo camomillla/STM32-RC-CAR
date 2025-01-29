@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SteeringWindow));
+            this.PB_ABS = new System.Windows.Forms.PictureBox();
             this.PB_CarKey = new System.Windows.Forms.PictureBox();
             this.PB_Ignition = new System.Windows.Forms.PictureBox();
             this.PB_Lights = new System.Windows.Forms.PictureBox();
@@ -36,6 +37,7 @@
             this.PB_Speedometer_Arrow = new System.Windows.Forms.PictureBox();
             this.PB_Speedometer_Back = new System.Windows.Forms.PictureBox();
             this.PB_Pointer = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.PB_ABS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_CarKey)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Ignition)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Lights)).BeginInit();
@@ -44,6 +46,19 @@
             ((System.ComponentModel.ISupportInitialize)(this.PB_Speedometer_Back)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Pointer)).BeginInit();
             this.SuspendLayout();
+            // 
+            // PB_ABS
+            // 
+            this.PB_ABS.BackColor = System.Drawing.Color.Transparent;
+            this.PB_ABS.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.PB_ABS.Image = global::PC_Application.Properties.Resources.ABS;
+            this.PB_ABS.Location = new System.Drawing.Point(632, 12);
+            this.PB_ABS.Name = "PB_ABS";
+            this.PB_ABS.Size = new System.Drawing.Size(128, 128);
+            this.PB_ABS.TabIndex = 10;
+            this.PB_ABS.TabStop = false;
+            this.PB_ABS.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PB_ABS_MouseDown);
+            this.PB_ABS.MouseUp += new System.Windows.Forms.MouseEventHandler(this.PB_ABS_MouseUp);
             // 
             // PB_CarKey
             // 
@@ -131,8 +146,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(760, 537);
+            this.ClientSize = new System.Drawing.Size(784, 561);
             this.ControlBox = false;
+            this.Controls.Add(this.PB_ABS);
             this.Controls.Add(this.PB_CarKey);
             this.Controls.Add(this.PB_Ignition);
             this.Controls.Add(this.PB_Lights);
@@ -148,6 +164,7 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "SteeringWindow";
+            ((System.ComponentModel.ISupportInitialize)(this.PB_ABS)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_CarKey)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Ignition)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PB_Lights)).EndInit();
@@ -168,5 +185,6 @@
         private System.Windows.Forms.PictureBox PB_Lights;
         private System.Windows.Forms.PictureBox PB_Ignition;
         private System.Windows.Forms.PictureBox PB_CarKey;
+        private System.Windows.Forms.PictureBox PB_ABS;
     }
 }

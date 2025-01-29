@@ -135,6 +135,7 @@ typedef struct
 	TIM_HandleTypeDef *motorBack;
 	TIM_HandleTypeDef *motorFront;
 	uint32_t axisTimer;
+	short direction;
 
 	uint16_t resolution;
 
@@ -148,6 +149,7 @@ typedef struct
 } MOTOR;
 
 MOTOR motorA;
+MOTOR motorB;
 
 void Init_Motor(MOTOR *m, TIM_HandleTypeDef *enc, uint32_t axis, TIM_HandleTypeDef* front, TIM_HandleTypeDef* back)
 {
@@ -194,31 +196,68 @@ void motor_update_count(MOTOR *m)
 	__HAL_TIM_SET_COUNTER(m->encoder, 0);
 }
 
-void motor_set_speed(MOTOR *m, int set_speed)
+enum DIRECTION {
+	DEFAULT, FRONT, BACK
+};
+
+void motor_set_speed(MOTOR *m, short direction, int set_speed)
 {
 	if(set_speed != m->set_speed)
 		pid_reset(&(m->pid_controller));
 
 	m->set_speed = set_speed;
+	m->direction = direction;
+}
+
+void MotorABS(MOTOR* m) {
+	ResetMotor(m);
+	__HAL_TIM_SetCompare(m->motorBack, m->axisTimer, 0);
+	__HAL_TIM_SetCompare(m->motorFront, m->axisTimer, 0);
 }
 
 void SetMotorSpeed(MOTOR* m, uint16_t speed)
 {
-	if(speed >= m->motorBack->Instance->ARR)
-		speed = m->motorBack->Instance->ARR;
+	switch (m->direction) {
+	case DEFAULT:
+		if(speed >= m->motorFront->Instance->ARR)
+			speed = m->motorFront->Instance->ARR;
+		__HAL_TIM_SetCompare(m->motorFront, m->axisTimer, speed);
 
-	__HAL_TIM_SetCompare(m->motorBack, m->axisTimer, speed);
+		if(speed >= m->motorBack->Instance->ARR)
+			speed = m->motorBack->Instance->ARR;
+		__HAL_TIM_SetCompare(m->motorBack, m->axisTimer, speed);
+		break;
+
+	case FRONT:
+		if(speed >= m->motorFront->Instance->ARR)
+			speed = m->motorFront->Instance->ARR;
+		__HAL_TIM_SetCompare(m->motorFront, m->axisTimer, speed);
+		__HAL_TIM_SetCompare(m->motorBack, m->axisTimer, 0);
+		break;
+
+	case BACK:
+		if(speed >= m->motorBack->Instance->ARR)
+			speed = m->motorBack->Instance->ARR;
+		__HAL_TIM_SetCompare(m->motorBack, m->axisTimer, speed);
+		__HAL_TIM_SetCompare(m->motorFront, m->axisTimer, 0);
+		break;
+	}
+
+
 	//__HAL_TIM_SetCompare(&htim2, TIM_CHANNEL_4, speed);
 }
 
 void Init_MotorSystem()
 {
 	Init_Motor(&motorA, &htim8, TIM_CHANNEL_1, &htim2, &htim5);
+	Init_Motor(&motorB, &htim3, TIM_CHANNEL_4, &htim2, &htim5);
 	//Init_Motor(&motorB, &htim4, TIM_CHANNEL_1, &htim2, &htim5);
 
 	pid_init(&(motorA.pid_controller), MOTOR_Kp, MOTOR_Ki, MOTOR_Kd, MOTOR_ANTI_WINDUP);
+	pid_init(&(motorB.pid_controller), MOTOR_Kp, MOTOR_Ki, MOTOR_Kd, MOTOR_ANTI_WINDUP);
 
-	SetMotorSpeed(&motorA, 0);
+	MotorABS(&motorA);
+	MotorABS(&motorB);
 	//SetMotorSpeed(&motorB, 0);
 }
 
@@ -227,6 +266,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if(htim->Instance == TIM6)
 	{
 		motor_calculate_speed(&motorA);
+		motor_calculate_speed(&motorB);
 	}
 }
 
@@ -243,15 +283,9 @@ void Set_PWM_Frequency(uint32_t frequency) {
     uint32_t prescaler = htim12.Init.Prescaler + 1;
     uint32_t period = (timer_clock / (prescaler * frequency)) - 1;
 
-    __HAL_TIM_SET_AUTORELOAD(&htim2, period);
+    __HAL_TIM_SET_AUTORELOAD(&htim12, period);
     __HAL_TIM_SET_COMPARE(&htim12, TIM_CHANNEL_2, period / 2);
     HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
-}
-
-void ATC_ReceiveCallback(const char *data) {
-
-    HAL_UART_Transmit(&huart3, (uint8_t *)data, strlen(data), HAL_MAX_DELAY);
-    HAL_UART_Transmit(&huart3, (uint8_t *)"\r\n", 2, HAL_MAX_DELAY);
 }
 
 int hornOn = 0;
@@ -259,22 +293,28 @@ int engineOn = 0;
 
 void ProcessCommand(uint8_t* cmd) {
 
-		if (strcmp((char*)cmd, "CMD0") == 0) {
-			if (!engineOn) {
-				HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
-				HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
-				HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
-				HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
+			if (strcmp((char*)cmd, "INIT") == 0) {
+				HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+				HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+				HAL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+			}
 
-				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-				HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
-				HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);
-				HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_4);
+			else if (strcmp((char*)cmd, "CMD0") == 0) {
+				if (!engineOn) {
+					HAL_TIM_Encoder_Start(&htim1, TIM_CHANNEL_ALL);
+					HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+					HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL);
+					HAL_TIM_Encoder_Start(&htim8, TIM_CHANNEL_ALL);
 
-				HAL_TIM_Base_Start_IT(&htim6);
+					HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
+					HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+					HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_1);
+					HAL_TIM_PWM_Start(&htim5, TIM_CHANNEL_4);
 
-				HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
-				engineOn = 1;
+					HAL_TIM_Base_Start_IT(&htim6);
+
+					HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
+					engineOn = 1;
 			}
 			else {
 				ResetMotor(&motorA);
@@ -316,6 +356,11 @@ void ProcessCommand(uint8_t* cmd) {
 			HAL_UART_Transmit(&huart3, (uint8_t*)"HORN RUNNING\r\n", 14, HAL_MAX_DELAY);
 	    }
 
+	    else if (strcmp((char*)cmd, "CMDC") == 0) {
+	    	MotorABS(&motorA);
+			HAL_UART_Transmit(&huart3, (uint8_t*)"ABS!!!\r\n", 8, HAL_MAX_DELAY);
+	    }
+
 	    else if (strncmp((char*)cmd, "CMD", 3) == 0) {
 	        char* modeStr = (char*)cmd + 3;
 	        int mode = atoi(modeStr);
@@ -325,41 +370,56 @@ void ProcessCommand(uint8_t* cmd) {
 	                case 1:
 	                    // Operacja dla MOTOR0
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR0 selected\r\n", 18, HAL_MAX_DELAY);
-	                    motor_set_speed(&motorA, 0);
+	                    motor_set_speed(&motorA, DEFAULT, 0);
+	                    motor_set_speed(&motorB, DEFAULT, 0);
 	                    break;
 	                case 2:
 	                    // Operacja dla MOTORF
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR1 selected\r\n", 18, HAL_MAX_DELAY);
-	                    motor_set_speed(&motorA, 100);
+	                    motor_set_speed(&motorA, FRONT, 93);
+	                    motor_set_speed(&motorB, FRONT, 100);
 	                    break;
 	                case 3:
 	                    // Operacja dla MOTORFR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR2 selected\r\n", 18, HAL_MAX_DELAY);
-	                    motor_set_speed(&motorA, 75);
+	                    motor_set_speed(&motorA, FRONT, 50);
+	                    motor_set_speed(&motorB, FRONT, 100);
 	                    break;
 	                case 4:
 	                    // Operacja dla MOTORR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR3 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, BACK, 100);
+	                    motor_set_speed(&motorB, FRONT, 100);
 	                    break;
 	                case 5:
 	                    // Operacja dla MOTORBR
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR4 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, BACK, 50);
+	                    motor_set_speed(&motorB, BACK, 100);
 	                    break;
 	                case 6:
 	                    // Operacja dla MOTORB
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR5 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, BACK, 100);
+	                    motor_set_speed(&motorB, BACK, 100);
 	                    break;
 	                case 7:
 	                    // Operacja dla MOTORBL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR6 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, BACK, 100);
+	                    motor_set_speed(&motorB, BACK, 50);
 	                    break;
 	                case 8:
 	                    // Operacja dla MOTORL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR7 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, FRONT, 100);
+	                    motor_set_speed(&motorB, BACK, 100);
 	                    break;
 	                case 9:
 	                    // Operacja dla MOTORFL
 	                    HAL_UART_Transmit(&huart3, (uint8_t *)"MOTOR8 selected\r\n", 18, HAL_MAX_DELAY);
+	                    motor_set_speed(&motorA, FRONT, 100);
+	                    motor_set_speed(&motorB, FRONT, 50);
 	                    break;
 	                default:
 	                    break;
@@ -384,7 +444,7 @@ void ProcessHeartBeat(void* argument) {
     	int length;
 
     	// Formatowanie wiadomości
-    	length = snprintf(message, sizeof(message), "HB:%d\r\n", motorA.measured_speed);
+    	length = snprintf(message, sizeof(message), "HB:%d/%d\r\n", motorA.measured_speed, motorB.measured_speed);
 
     	// Wysyłanie przez UART2
     	HAL_UART_Transmit(&huart2, (uint8_t*)message, length, HAL_MAX_DELAY);
@@ -400,7 +460,7 @@ void TESTSCENARIO(void*) {
 	}
 
 	while(1) {
-		motor_set_speed(&motorA, rand() % 100);
+		motor_set_speed(&motorA, FRONT, rand() % 100);
 		osDelay(5000);
 	}
 }
