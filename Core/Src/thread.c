@@ -28,7 +28,6 @@ const osThreadAttr_t distanceIndicator_attributes = {
 
 /** @brief Uchwyty wątków */
 osThreadId_t heartBeatHandle;
-osThreadId_t testScenario;
 osThreadId_t distanceSensorHandle;
 osThreadId_t distanceIndicatorHandle;
 
