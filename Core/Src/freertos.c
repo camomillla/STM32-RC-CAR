@@ -18,10 +18,7 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "FreeRTOS.h"
-#include "task.h"
-#include "main.h"
-#include "cmsis_os.h"
+#include "thread.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -48,41 +45,6 @@
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
-osThreadId_t heartBeatHandle;
-osThreadId_t testScenario;
-osThreadId_t distanceSensorHandle;
-osThreadId_t distanceIndicatorHandle;
-
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
-const osThreadAttr_t heartBeatHandle_attributes = {
-  .name = "heartBeat",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
-const osThreadAttr_t testScenario_attributes = {
-  .name = "testScenario",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
-const osThreadAttr_t distanceSensor_attributes = {
-  .name = "distanceSensor",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
-const osThreadAttr_t distanceIndicator_attributes = {
-  .name = "distanceIndicator",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -121,9 +83,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* creation of defaultTask */
-	heartBeatHandle = osThreadNew(ProcessHeartBeat, NULL, &heartBeatHandle_attributes);
-	distanceSensorHandle = osThreadNew(DistanceSensor, NULL, &distanceSensor_attributes);
-	distanceIndicatorHandle = osThreadNew(DistanceIndicator, NULL, &distanceIndicator_attributes);
+	StartMultiThreads();
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */

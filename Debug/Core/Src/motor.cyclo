@@ -1,0 +1,8 @@
+../Core/Src/motor.c:24:6:Init_Motor	1
+../Core/Src/motor.c:43:6:motor_calculate_speed	2
+../Core/Src/motor.c:61:6:ResetMotor	11
+../Core/Src/motor.c:74:6:motor_update_count	1
+../Core/Src/motor.c:86:6:motor_set_speed	2
+../Core/Src/motor.c:100:6:SetMotorSpeed	39
+../Core/Src/motor.c:132:6:Init_MotorSystem	1
+../Core/Src/motor.c:148:6:HAL_TIM_PeriodElapsedCallback	5

@@ -1,0 +1,4 @@
+../Core/Src/thread.c:50:6:StartMultiThreads	8	static
+../Core/Src/thread.c:61:6:DistanceIndicator	16	static
+../Core/Src/thread.c:101:6:DistanceSensor	24	static
+../Core/Src/thread.c:129:6:ProcessHeartBeat	32	static

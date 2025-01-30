@@ -1,0 +1,10 @@
+../Core/Src/modules.c:30:6:Set_PWM_Frequency	32	static
+../Core/Src/modules.c:48:6:Command_Init	4	static
+../Core/Src/modules.c:54:6:Command_Engine	8	static
+../Core/Src/modules.c:94:6:Command_Lights	8	static
+../Core/Src/modules.c:101:6:Command_Horn	8	static
+../Core/Src/modules.c:118:6:Command_ABS	8	static
+../Core/Src/modules.c:129:6:Command_Motors	24	static
+../Core/Src/modules.c:214:6:ProcessCommand	16	static
+../Core/Src/modules.c:242:6:HAL_UART_RxCpltCallback	16	static
+../Core/Src/modules.c:261:6:HAL_GPIO_EXTI_Callback	24	static
