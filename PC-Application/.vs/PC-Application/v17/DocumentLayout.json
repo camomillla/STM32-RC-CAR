@@ -3,11 +3,11 @@
   "WorkspaceRootPath": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:mainwindow.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|e:\\deathproject\\stm32-rc-car\\pc-application\\charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5C27FC5D-5EEB-4A5F-8FCD-C4931C6B2D41}|PC-Application.csproj|solutionrelative:charts.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -67,7 +67,7 @@
               "RelativeDocumentMoniker": "MainWindow.cs",
               "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs",
               "RelativeToolTip": "MainWindow.cs",
-              "ViewState": "AgIAAI4AAAAAAAAAAAAkwJkAAAAXAAAAAAAAAA==",
+              "ViewState": "AgIAAFIAAAAAAAAAAAAYwGEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-29T03:17:59.949Z",
               "EditorCaption": ""
@@ -82,8 +82,7 @@
               "RelativeToolTip": "Charts.cs",
               "ViewState": "AgIAAFoAAAAAAAAAAAAAAFQAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T03:17:58.431Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-29T03:17:58.431Z"
             },
             {
               "$type": "Document",
@@ -105,8 +104,7 @@
               "ToolTip": "E:\\DeathProject\\STM32-RC-CAR\\PC-Application\\MainWindow.cs [Projekt]",
               "RelativeToolTip": "MainWindow.cs [Projekt]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T03:15:13.807Z",
-              "EditorCaption": " [Projekt]"
+              "WhenOpened": "2025-01-29T03:15:13.807Z"
             }
           ]
         }

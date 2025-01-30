@@ -8,20 +8,8 @@
 #include "thread.h"
 
 /** @brief Atrybuty wątków RTOS */
-const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
 const osThreadAttr_t heartBeatHandle_attributes = {
   .name = "heartBeat",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-
-const osThreadAttr_t testScenario_attributes = {
-  .name = "testScenario",
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
