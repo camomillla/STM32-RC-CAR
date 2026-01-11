@@ -1,0 +1,11 @@
+C:\Users\Kamila\source\repos\ClientAppC\bin\Debug\ClientAppC.exe.config
+C:\Users\Kamila\source\repos\ClientAppC\bin\Debug\ClientAppC.exe
+C:\Users\Kamila\source\repos\ClientAppC\bin\Debug\ClientAppC.pdb
+C:\Users\Kamila\source\repos\ClientAppC\obj\Debug\ClientAppC.csproj.AssemblyReference.cache
+C:\Users\Kamila\source\repos\ClientAppC\obj\Debug\ClientAppC.Properties.Resources.resources
+C:\Users\Kamila\source\repos\ClientAppC\obj\Debug\ClientAppC.csproj.GenerateResource.cache
+C:\Users\Kamila\source\repos\ClientAppC\obj\Debug\ClientAppC.csproj.CoreCompileInputs.cache
+C:\Users\Kamila\source\repos\ClientAppC\obj\Debug\ClientAppC.exe
+C:\Users\Kamila\source\repos\ClientAppC\obj\Debug\ClientAppC.pdb
+C:\Users\Kamila\source\repos\ClientAppC\obj\Debug\ClientAppC.exe.config
+C:\Users\Kamila\source\repos\ClientAppC\obj\Debug\ClientAppC.CSApp.resources
