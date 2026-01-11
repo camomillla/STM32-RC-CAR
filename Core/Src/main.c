@@ -22,6 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "motor.h"
+#include "thread.h"
+#include "wifi_api.h"
 #include "string.h"
 /* USER CODE END Includes */
 
@@ -48,7 +50,6 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -102,26 +103,17 @@ int main(void)
   MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
 
-  const char *readyMsg = "STM32 ready to receive data from HC05...\r\n";
+  const char *readyMsg = "STM32 ready (ESP-05 REST /ping)...\r\n";
   HAL_UART_Transmit(&huart3, (uint8_t *)readyMsg, strlen(readyMsg), HAL_MAX_DELAY);
-  HAL_UART_Receive_IT(&huart2, &rxData, 1);
 
   Init_MotorSystem();
+  StartMultiThreads();
 
-  //Set_PWM_Frequency(1000); // BUZZER
-
+  WifiApi_Init();
   /* USER CODE END 2 */
 
-  /* Init scheduler */
-  osKernelInitialize();
 
-  /* Call init function for freertos objects (in cmsis_os2.c) */
-  MX_FREERTOS_Init();
-
-  /* Start scheduler */
-  osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
+  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -130,6 +122,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	WifiApi_Process();
+    ProcessMultiThreads();
   }
   /* USER CODE END 3 */
 }

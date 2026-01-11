@@ -17,41 +17,21 @@ MOTOR motorB;
  * @brief Inicjalizuje strukturę silnika.
  * @param _motor Wskaźnik na strukturę silnika.
  * @param _encoder Wskaźnik na timer enkodera.
- * @param _axis Kanał timera sterującego osią.
- * @param _front Wskaźnik na timer przedniego silnika.
- * @param _back Wskaźnik na timer tylnego silnika.
+ * @param _axisTimer Kanał timera odpowiadający osi.
+ * @param _motorBack Timer silnika do jazdy w tył.
+ * @param _motorFront Timer silnika do jazdy w przód.
  */
-void Init_Motor(MOTOR* _motor, TIM_HandleTypeDef* _encoder, uint32_t _axis, TIM_HandleTypeDef* _front, TIM_HandleTypeDef* _back)
+void Init_Motor(MOTOR* _motor, TIM_HandleTypeDef* _encoder, uint32_t _axisTimer,
+                TIM_HandleTypeDef* _motorBack, TIM_HandleTypeDef* _motorFront)
 {
     _motor->encoder = _encoder;
-    _motor->axisTimer = _axis;
-    _motor->motorFront = _front;
-    _motor->motorBack = _back;
+    _motor->axisTimer = _axisTimer;
 
-    _motor->resolution = ENCODER_RESOLUTION * TIMER_CONF_BOTH_EDGE_T1T2 * MOTOR_GEAR;
+    _motor->motorBack = _motorBack;
+    _motor->motorFront = _motorFront;
 
-    _motor->pulse_count = 0;
-    _motor->measured_speed = 0;
-    _motor->set_speed = 0;
-    _motor->actual_PWM = 0;
-}
-
-/**
- * @brief Oblicza prędkość silnika i aktualizuje wartość PWM.
- * @param _motor Wskaźnik na strukturę silnika.
- */
-void motor_calculate_speed(MOTOR* _motor)
-{
-    motor_update_count(_motor);
-
-    _motor->measured_speed = abs((_motor->pulse_count * TIMER_FREQENCY * SECOND_IN_MINUTE) / _motor->resolution);
-
-    int output = pid_calculate(&(_motor->pid_controller), _motor->set_speed, _motor->measured_speed);
-
-    _motor->actual_PWM += output;
-
-    if (_motor->actual_PWM >= 0)
-        SetMotorSpeed(_motor, _motor->actual_PWM);
+    _motor->resolution = ENCODER_RESOLUTION;
+    _motor->direction = DEFAULT;
 }
 
 /**
@@ -73,50 +53,59 @@ void ResetMotor(MOTOR* _motor)
  */
 void motor_update_count(MOTOR* _motor)
 {
-    _motor->pulse_count = (int16_t)__HAL_TIM_GET_COUNTER(_motor->encoder);
+    int32_t pulse = (int16_t)__HAL_TIM_GET_COUNTER(_motor->encoder);
+    _motor->pulse_count += pulse;
     __HAL_TIM_SET_COUNTER(_motor->encoder, 0);
 }
 
 /**
- * @brief Ustawia prędkość i kierunek silnika.
+ * @brief Oblicza aktualną prędkość silnika na podstawie impulsów.
  * @param _motor Wskaźnik na strukturę silnika.
- * @param _direction Kierunek obrotów (FRONT/BACK/DEFAULT).
- * @param _set_speed Zadana prędkość obrotowa.
  */
-void motor_set_speed(MOTOR* _motor, short _direction, int _set_speed)
+void motor_calculate_speed(MOTOR* _motor)
 {
-    if (_set_speed != _motor->set_speed)
-        pid_reset(&(_motor->pid_controller));
+    motor_update_count(_motor);
 
-    _motor->set_speed = _set_speed;
-    _motor->direction = _direction;
+    _motor->measured_speed = (int)((float)(_motor->pulse_count / _motor->resolution) *
+                                   (float)(SECOND_IN_MINUTE / TIMER_FREQENCY) /
+                                   (float)MOTOR_GEAR);
+
+    int output = pid_update(&_motor->pid_controller, _motor->set_speed, _motor->measured_speed);
+    SetMotorSpeed(_motor, output);
+
+    _motor->pulse_count = 0;
 }
 
 /**
- * @brief Ustawia prędkość silnika na podstawie kierunku obrotów.
+ * @brief Ustawia docelową prędkość silnika.
  * @param _motor Wskaźnik na strukturę silnika.
- * @param _speed Żądana wartość PWM.
+ * @param _direction Kierunek obrotu silnika.
+ * @param _speed Docelowa prędkość (0-100).
+ */
+void motor_set_speed(MOTOR* _motor, short _direction, int _speed)
+{
+    _motor->direction = _direction;
+    _motor->set_speed = _speed;
+}
+
+/**
+ * @brief Ustawia prędkość silnika przez PWM.
+ * @param _motor Wskaźnik na strukturę silnika.
+ * @param _speed Wartość PWM.
  */
 void SetMotorSpeed(MOTOR* _motor, uint16_t _speed)
 {
     switch (_motor->direction) {
     case DEFAULT:
-        if (_speed >= _motor->motorFront->Instance->ARR)
-            _speed = _motor->motorFront->Instance->ARR;
-        __HAL_TIM_SetCompare(_motor->motorFront, _motor->axisTimer, _speed);
-
-        if (_speed >= _motor->motorBack->Instance->ARR)
-            _speed = _motor->motorBack->Instance->ARR;
-        __HAL_TIM_SetCompare(_motor->motorBack, _motor->axisTimer, _speed);
+        __HAL_TIM_SetCompare(_motor->motorBack, _motor->axisTimer, 0);
+        __HAL_TIM_SetCompare(_motor->motorFront, _motor->axisTimer, 0);
         break;
-
     case FRONT:
         if (_speed >= _motor->motorFront->Instance->ARR)
             _speed = _motor->motorFront->Instance->ARR;
         __HAL_TIM_SetCompare(_motor->motorFront, _motor->axisTimer, _speed);
         __HAL_TIM_SetCompare(_motor->motorBack, _motor->axisTimer, 0);
         break;
-
     case BACK:
         if (_speed >= _motor->motorBack->Instance->ARR)
             _speed = _motor->motorBack->Instance->ARR;
@@ -131,8 +120,8 @@ void SetMotorSpeed(MOTOR* _motor, uint16_t _speed)
  */
 void Init_MotorSystem()
 {
-    Init_Motor(&motorA, &htim8, TIM_CHANNEL_1, &htim2, &htim5);
-    Init_Motor(&motorB, &htim3, TIM_CHANNEL_4, &htim2, &htim5);
+    Init_Motor(&motorA, &htim8, TIM_CHANNEL_1, &htim5, &htim2);
+    Init_Motor(&motorB, &htim3, TIM_CHANNEL_4, &htim5, &htim2);
 
     pid_init(&(motorA.pid_controller), MOTOR_Kp, MOTOR_Ki, MOTOR_Kd, MOTOR_ANTI_WINDUP);
     pid_init(&(motorB.pid_controller), MOTOR_Kp, MOTOR_Ki, MOTOR_Kd, MOTOR_ANTI_WINDUP);

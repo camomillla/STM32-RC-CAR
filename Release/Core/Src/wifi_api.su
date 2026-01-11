@@ -1,0 +1,7 @@
+../Core/Src/wifi_api.c:102:13:esp_send	8	static
+../Core/Src/wifi_api.c:77:12:wait_for_string.constprop	32	static
+../Core/Src/wifi_api.c:128:13:send_http	96	static
+../Core/Src/wifi_api.c:249:13:send_json_state	824	static
+../Core/Src/wifi_api.c:306:13:handle_ipd.constprop	936	static
+../Core/Src/wifi_api.c:380:6:WifiApi_Init	144	static
+../Core/Src/wifi_api.c:389:6:WifiApi_Process	24	static

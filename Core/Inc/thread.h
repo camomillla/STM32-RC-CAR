@@ -8,24 +8,21 @@
 #ifndef INC_THREAD_H_
 #define INC_THREAD_H_
 
-#include "FreeRTOS.h"
-#include "task.h"
 #include "main.h"
-#include "cmsis_os.h"
-#include "FreeRTOS.h"
-#include "tim.h"
 #include "modules.h"
+#include "tim.h"
 
-void ProcessHeartBeat(void*);
-void TESTSCENARIO(void*);
-void DistanceSensor(void*);
-void DistanceIndicator(void*);
-
+/**
+ * @brief Inicjalizuje logikę wątków (wersja bez RTOS).
+ * @details Funkcja zachowuje nazwę z wersji RTOS, ale nie tworzy wątków —
+ *          inicjalizuje stan maszyn i uruchamia wymagane peryferia.
+ */
 void StartMultiThreads(void);
 
-extern osThreadId_t heartBeatHandle;
-extern osThreadId_t testScenario;
-extern osThreadId_t distanceSensorHandle;
-extern osThreadId_t distanceIndicatorHandle;
+/**
+ * @brief Uruchamia logikę dawnych wątków w trybie kooperacyjnym.
+ * @details Należy wywoływać możliwie często z pętli głównej.
+ */
+void ProcessMultiThreads(void);
 
 #endif /* INC_THREAD_H_ */

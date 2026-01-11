@@ -8,18 +8,17 @@
 #ifndef INC_PID_H_
 #define INC_PID_H_
 
-typedef struct
-{
-	int previous_error;
-	int total_error;
-	float Kp;
-	float Ki;
-	float Kd;
-	int anti_windup_limit;
+typedef struct {
+    float Kp;
+    float Ki;
+    float Kd;
+    float anti_windup;
+
+    float integral;
+    float previous_error;
 } PID;
 
-void pid_init(PID*, float, float, float, int);
-void pid_reset(PID*);
-int pid_calculate(PID*, int, int);
+void pid_init(PID* pid, float Kp, float Ki, float Kd, float anti_windup);
+int pid_update(PID* pid, float setpoint, float measured_value);
 
 #endif /* INC_PID_H_ */

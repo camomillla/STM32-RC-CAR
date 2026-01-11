@@ -1,0 +1,243 @@
+:root {
+  --bg: #0b0f14;
+  --text: #e7eefc;
+  --muted: #a8b3c7;
+  --danger: #ff6b6b;
+  --ok: #33d69f;
+  --border: rgba(255,255,255,.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  background: radial-gradient(1000px 600px at 20% -20%, rgba(110,168,254,.22), transparent 60%),
+              radial-gradient(900px 500px at 90% 0%, rgba(51,214,159,.18), transparent 55%),
+              var(--bg);
+  color: var(--text);
+}
+
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.top {
+  background: rgba(17,24,36,.75);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  backdrop-filter: blur(8px);
+  display: grid;
+  gap: 12px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1.2fr .8fr auto auto;
+  gap: 10px;
+  align-items: end;
+}
+
+@media (max-width: 820px) {
+  .row { grid-template-columns: 1fr; }
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.04);
+  color: var(--text);
+  outline: none;
+}
+
+input:focus { border-color: rgba(110,168,254,.55); }
+
+.btn {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn:hover { background: rgba(255,255,255,.10); }
+
+.btn.primary {
+  background: rgba(110,168,254,.22);
+  border-color: rgba(110,168,254,.35);
+}
+
+.btn.primary:hover { background: rgba(110,168,254,.30); }
+
+.btn.danger {
+  background: rgba(255,107,107,.16);
+  border-color: rgba(255,107,107,.28);
+}
+
+.btn.danger:hover { background: rgba(255,107,107,.22); }
+
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.status {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.18);
+  border: 1px solid var(--border);
+}
+
+.dot.ok { background: var(--ok); border-color: rgba(51,214,159,.45); }
+.dot.bad { background: var(--danger); border-color: rgba(255,107,107,.45); }
+
+.cards {
+  display: grid;
+  gap: 14px;
+}
+
+.card {
+  background: rgba(17,24,36,.75);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  backdrop-filter: blur(8px);
+  display: grid;
+  gap: 10px;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: .2px;
+}
+
+canvas {
+  width: 100% !important;
+  height: 320px !important;
+}
+
+.error {
+  color: #ffd1d1;
+  background: rgba(255,107,107,.10);
+  border: 1px solid rgba(255,107,107,.22);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  display: none;
+}
+
+.error.show { display: block; }
+
+.controls-row {
+  display: flex;
+  gap: 14px;
+  align-items: start;
+  flex-wrap: wrap;
+}
+
+.dpad-wrap {
+  display: grid;
+  gap: 10px;
+  align-items: start;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: 56px 56px 56px;
+  grid-template-rows: 56px 56px 56px;
+  gap: 8px;
+  justify-content: start;
+  align-items: center;
+}
+
+.dpad-btn {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  user-select: none;
+  touch-action: none;
+}
+
+.dpad-btn.stop {
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+#btnUpLeft { grid-column: 1; grid-row: 1; }
+#btnUp { grid-column: 2; grid-row: 1; }
+#btnUpRight { grid-column: 3; grid-row: 1; }
+
+#btnLeft { grid-column: 1; grid-row: 2; }
+#btnStop { grid-column: 2; grid-row: 2; }
+#btnRight { grid-column: 3; grid-row: 2; }
+
+#btnDownLeft { grid-column: 1; grid-row: 3; }
+#btnDown { grid-column: 2; grid-row: 3; }
+#btnDownRight { grid-column: 3; grid-row: 3; }
+
+.dpad-hint {
+  color: var(--muted);
+  font-size: 12px;
+  max-width: 260px;
+}
+
+.toggles {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 210px;
+}
+
+.toggle-btn {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 12px;
+}
+
+.toggle-btn .state {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+
+.toggle-btn.active {
+  background: rgba(51,214,159,.16);
+  border-color: rgba(51,214,159,.30);
+}
+
+.toggle-btn.active .state {
+  color: rgba(51,214,159,.95);
+}

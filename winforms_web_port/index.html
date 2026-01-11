@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Telemetry RPM</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="row">
+        <label>
+          Adres IP / host
+          <input id="ip" placeholder="np. 192.168.0.50 albo http://192.168.0.50:8080" value="192.168.0.50" />
+        </label>
+
+        <label>
+          Częstotliwość próbkowania (Hz)
+          <input id="hz" type="number" min="0.2" step="0.1" value="5" />
+        </label>
+
+        <button id="connect" class="btn primary">Connect</button>
+        <button id="disconnect" class="btn danger" disabled>Disconnect</button>
+      </div>
+
+      <div class="controls-row">
+        <div class="dpad-wrap">
+          <div class="dpad">
+            <button id="btnUpLeft" class="btn dpad-btn" disabled>↖</button>
+            <button id="btnUp" class="btn dpad-btn" disabled>▲</button>
+            <button id="btnUpRight" class="btn dpad-btn" disabled>↗</button>
+
+            <button id="btnLeft" class="btn dpad-btn" disabled>◀</button>
+            <button id="btnStop" class="btn dpad-btn stop" disabled>■</button>
+            <button id="btnRight" class="btn dpad-btn" disabled>▶</button>
+
+            <button id="btnDownLeft" class="btn dpad-btn" disabled>↙</button>
+            <button id="btnDown" class="btn dpad-btn" disabled>▼</button>
+            <button id="btnDownRight" class="btn dpad-btn" disabled>↘</button>
+          </div>
+          <div class="dpad-hint">Wciśnij i trzymaj kierunek — puszczenie wysyła STOP (/motor/1)</div>
+        </div>
+
+        <div class="toggles">
+          <button id="btnEngine" class="btn toggle-btn" disabled>
+            <span>Silnik</span>
+            <span class="state" id="stateEngine">OFF</span>
+          </button>
+
+          <button id="btnHorn" class="btn toggle-btn" disabled>
+            <span>Klakson</span>
+            <span class="state" id="stateHorn">OFF</span>
+          </button>
+
+          <button id="btnLights" class="btn toggle-btn" disabled>
+            <span>Światła</span>
+            <span class="state" id="stateLights">OFF</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="status">
+        <span id="dot" class="dot"></span>
+        <span id="statusText">Rozłączono</span>
+      </div>
+
+      <div id="error" class="error"></div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h2>Silnik A (RPM w czasie)</h2>
+        <canvas id="chartA"></canvas>
+      </div>
+
+      <div class="card">
+        <h2>Silnik B (RPM w czasie)</h2>
+        <canvas id="chartB"></canvas>
+      </div>
+
+      <div class="card">
+        <h2>Wartość średnia (RPM w czasie)</h2>
+        <canvas id="chartAvg"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

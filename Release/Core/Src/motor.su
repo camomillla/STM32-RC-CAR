@@ -1,8 +1,8 @@
 ../Core/Src/motor.c:24:6:Init_Motor	0	static
-../Core/Src/motor.c:61:6:ResetMotor	0	static
-../Core/Src/motor.c:74:6:motor_update_count	0	static
-../Core/Src/motor.c:86:6:motor_set_speed	16	static
-../Core/Src/motor.c:100:6:SetMotorSpeed	8	static
-../Core/Src/motor.c:43:6:motor_calculate_speed	8	static
-../Core/Src/motor.c:132:6:Init_MotorSystem	24	static
-../Core/Src/motor.c:148:6:HAL_TIM_PeriodElapsedCallback	8	static
+../Core/Src/motor.c:41:6:ResetMotor	8	static
+../Core/Src/motor.c:54:6:motor_update_count	0	static
+../Core/Src/motor.c:85:6:motor_set_speed	0	static
+../Core/Src/motor.c:96:6:SetMotorSpeed	8	static
+../Core/Src/motor.c:65:6:motor_calculate_speed	8	static
+../Core/Src/motor.c:121:6:Init_MotorSystem	24	static
+../Core/Src/motor.c:137:6:HAL_TIM_PeriodElapsedCallback	8	static
