@@ -1,7 +1,10 @@
-../Core/Src/wifi_api.c:102:13:esp_send	1
-../Core/Src/wifi_api.c:77:12:wait_for_string.constprop	5
-../Core/Src/wifi_api.c:128:13:send_http	4
-../Core/Src/wifi_api.c:249:13:send_json_state	1
-../Core/Src/wifi_api.c:306:13:handle_ipd.constprop	25
-../Core/Src/wifi_api.c:380:6:WifiApi_Init	1
-../Core/Src/wifi_api.c:389:6:WifiApi_Process	6
+../Core/Src/wifi_api.c:153:13:esp_send	1
+../Core/Src/wifi_api.c:99:13:rx_trim_to_tail	2
+../Core/Src/wifi_api.c:88:13:rx_push_byte	2
+../Core/Src/wifi_api.c:126:12:wait_for_string	5
+../Core/Src/wifi_api.c:180:13:send_http	2
+../Core/Src/wifi_api.c:294:13:send_json_state	1
+../Core/Src/wifi_api.c:353:13:handle_request.constprop	23
+../Core/Src/wifi_api.c:423:13:process_rx_buffer	10
+../Core/Src/wifi_api.c:481:6:WifiApi_Init	1
+../Core/Src/wifi_api.c:490:6:WifiApi_Process	4
