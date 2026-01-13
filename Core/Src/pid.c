@@ -8,44 +8,58 @@
 #include "pid.h"
 
 /**
- * @brief Inicjalizuje regulator PID.
- * @param pid Wskaźnik na strukturę PID.
- * @param Kp Wzmocnienie proporcjonalne.
- * @param Ki Wzmocnienie całkujące.
- * @param Kd Wzmocnienie różniczkujące.
- * @param anti_windup Wartość ograniczenia całki.
+ * @brief Inicjalizacja struktury PID
+ * @details Ustawia początkowe wartości dla członów regulacji oraz limit anty-windup
+ * @param pid_data Uchwyt struktury PID
+ * @param _kp_init Wartość nastawy kp
+ * @param _ki_init Wartość nastawy ki
+ * @param _kd_init Wartość nastawy kd
+ * @param _anti_windup_limit_init Wartość parametru AntiWindup
  */
-void pid_init(PID* pid, float Kp, float Ki, float Kd, float anti_windup)
+void pid_init(PID* _pid_data, float _kp_init, float _ki_init, float _kd_init, int _anti_windup_limit_init)
 {
-    pid->Kp = Kp;
-    pid->Ki = Ki;
-    pid->Kd = Kd;
-    pid->anti_windup = anti_windup;
+	_pid_data->previous_error = 0;
+	_pid_data->total_error = 0;
 
-    pid->integral = 0.0f;
-    pid->previous_error = 0.0f;
+	_pid_data->Kp = _kp_init;
+	_pid_data->Ki = _ki_init;
+	_pid_data->Kd = _kd_init;
+
+	_pid_data->anti_windup_limit = _anti_windup_limit_init;
 }
 
 /**
- * @brief Oblicza wyjście regulatora PID.
- * @param pid Wskaźnik na strukturę PID.
- * @param setpoint Wartość zadana.
- * @param measured_value Wartość zmierzona.
- * @return Wartość wyjściowa regulatora.
+ * @brief Resetowanie wartości błędu w regulatorze PID
+ * @param pid_data Uchwyt struktury PID
  */
-int pid_update(PID* pid, float setpoint, float measured_value)
+void pid_reset(PID *_pid_data)
 {
-    float error = setpoint - measured_value;
+	_pid_data->total_error = 0;
+	_pid_data->previous_error = 0;
+}
 
-    pid->integral += error;
-    if (pid->integral > pid->anti_windup) pid->integral = pid->anti_windup;
-    if (pid->integral < -pid->anti_windup) pid->integral = -pid->anti_windup;
+/**
+ * @brief Obliczanie wartości sterującej regulatora PID
+ * @param pid_data Uchwyt struktury PID
+ * @param _setpoint Wartość zadana
+ * @param _process_variable Wartość zmierzona
+ */
+int pid_calculate(PID *_pid_data, int _setpoint, int _process_variable)
+{
+	int error;
+	float p_term, i_term, d_term;
 
-    float derivative = error - pid->previous_error;
-    pid->previous_error = error;
+	error = _setpoint - _process_variable;
+	_pid_data->total_error += error;
 
-    float output = pid->Kp * error + pid->Ki * pid->integral + pid->Kd * derivative;
+	p_term = (float)(_pid_data->Kp * error);
+	i_term = (float)(_pid_data->Ki * _pid_data->total_error);
+	d_term = (float)(_pid_data->Kd * (error - _pid_data->previous_error));
 
-    if (output < 0.0f) output = 0.0f;
-    return (int)output;
+	if(i_term >= _pid_data->anti_windup_limit) i_term = _pid_data->anti_windup_limit;
+	else if(i_term <= -_pid_data->anti_windup_limit) i_term = -_pid_data->anti_windup_limit;
+
+	_pid_data->previous_error = error;
+
+	return (int)(p_term + i_term + d_term);
 }

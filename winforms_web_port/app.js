@@ -7,6 +7,7 @@ const btnDisconnect = el("disconnect");
 const statusText = el("statusText");
 const dot = el("dot");
 const errorBox = el("error");
+const distText = el("distText");
 
 const btnUp = el("btnUp");
 const btnDown = el("btnDown");
@@ -16,6 +17,7 @@ const btnUpLeft = el("btnUpLeft");
 const btnUpRight = el("btnUpRight");
 const btnDownLeft = el("btnDownLeft");
 const btnDownRight = el("btnDownRight");
+const btnStop = el("btnStop");
 
 const btnEngine = el("btnEngine");
 const btnHorn = el("btnHorn");
@@ -36,7 +38,10 @@ let queueTail = Promise.resolve();
 const series = {
   a_set: [],
   b_set: [],
+  a_meas: [],
+  b_meas: [],
   avg_set: [],
+  avg_meas: [],
 };
 
 const toggles = {
@@ -80,6 +85,31 @@ function setError(msg) {
   errorBox.classList.add("show");
 }
 
+function parseDist(v) {
+  if (v === null || v === undefined) return null;
+
+  if (typeof v === "number") return isFinite(v) ? v : null;
+
+  if (typeof v === "string") {
+    const s = v.trim().replace(",", ".");
+    const m = s.match(/-?\d+(\.\d+)?/);
+    if (!m) return null;
+    const n = parseFloat(m[0]);
+    return isFinite(n) ? n : null;
+  }
+
+  return null;
+}
+
+function setDistance(v) {
+  const node = el("distText");
+  if (!node) return;
+
+  const n = parseDist(v);
+  node.textContent = n === null ? "-" : String(n);
+}
+
+
 function setControlsEnabled(enabled) {
   btnUp.disabled = !enabled;
   btnDown.disabled = !enabled;
@@ -90,6 +120,8 @@ function setControlsEnabled(enabled) {
   btnUpRight.disabled = !enabled;
   btnDownLeft.disabled = !enabled;
   btnDownRight.disabled = !enabled;
+
+  btnStop.disabled = !enabled;
 
   btnEngine.disabled = !enabled;
   btnHorn.disabled = !enabled;
@@ -126,17 +158,26 @@ function addPoint(payload) {
   const now = Date.now();
   const t = (now - startTimeMs) / 1000;
 
-  const a_set = Number(payload.a_set ?? 0);
-  const b_set = Number(payload.b_set ?? 0);
+  const a_set = Number(payload?.a_set ?? 0);
+  const b_set = Number(payload?.b_set ?? 0);
+  const a_meas = Number(payload?.a_meas ?? 0);
+  const b_meas = Number(payload?.b_meas ?? 0);
+
   const avg_set = (a_set + b_set) / 2;
+  const avg_meas = (a_meas + b_meas) / 2;
 
   series.a_set.push({ x: t, y: a_set });
   series.b_set.push({ x: t, y: b_set });
+  series.a_meas.push({ x: t, y: a_meas });
+  series.b_meas.push({ x: t, y: b_meas });
   series.avg_set.push({ x: t, y: avg_set });
+  series.avg_meas.push({ x: t, y: avg_meas });
 
   trimSeries();
 
   if (payload && typeof payload === "object") {
+    if ("dist" in payload) setDistance(payload.dist);
+
     if ("engine" in payload) setToggleUI("engine", Number(payload.engine) === 1);
     if ("horn" in payload) setToggleUI("horn", Number(payload.horn) === 1);
     if ("lights" in payload) setToggleUI("lights", Number(payload.lights) === 1);
@@ -145,7 +186,11 @@ function addPoint(payload) {
 }
 
 function makeChart(canvasId, datasets) {
-  const ctx = el(canvasId).getContext("2d");
+  const canvas = el(canvasId);
+  if (!canvas) throw new Error(`Brak elementu <canvas id="${canvasId}"> w HTML`);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error(`Nie mogę pobrać 2D context dla canvas "${canvasId}"`);
+
   return new Chart(ctx, {
     type: "line",
     data: { datasets },
@@ -158,7 +203,7 @@ function makeChart(canvasId, datasets) {
       plugins: {
         legend: { display: true },
         title: { display: false },
-        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y} RPM` } }
+        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y} RPM` } }
       },
       scales: {
         x: { type: "linear", title: { display: true, text: "Czas [s]" }, ticks: { maxTicksLimit: 10 } },
@@ -172,9 +217,20 @@ function makeChart(canvasId, datasets) {
   });
 }
 
-const chartA = makeChart("chartA", [{ label: "Prędkość silnika A", data: series.a_set }]);
-const chartB = makeChart("chartB", [{ label: "Prędkość silnika B", data: series.b_set }]);
-const chartAvg = makeChart("chartAvg", [{ label: "Średnia prędkość", data: series.avg_set }]);
+const chartA = makeChart("chartA", [
+  { label: "A SET", data: series.a_set, borderDash: [6, 6] },
+  { label: "A MEAS", data: series.a_meas },
+]);
+
+const chartB = makeChart("chartB", [
+  { label: "B SET", data: series.b_set, borderDash: [6, 6] },
+  { label: "B MEAS", data: series.b_meas },
+]);
+
+const chartAvg = makeChart("chartAvg", [
+  { label: "AVG SET", data: series.avg_set, borderDash: [6, 6] },
+  { label: "AVG MEAS", data: series.avg_meas },
+]);
 
 function updateCharts() {
   chartA.update("none");
@@ -233,6 +289,7 @@ async function sendToggle(path, key) {
       } else {
         setToggleUI(key, !toggles[key]);
       }
+      if ("dist" in payload) setDistance(payload.dist);
     } else {
       setToggleUI(key, !toggles[key]);
     }
@@ -282,6 +339,12 @@ bindHoldButton(btnDownLeft, 7);
 bindHoldButton(btnLeft, 8);
 bindHoldButton(btnUpLeft, 9);
 
+btnStop.addEventListener("click", () => {
+  if (!connected) return;
+  setError("");
+  sendMotor(1).catch((err) => setError(`motor/1: ${err?.message ?? err}`));
+});
+
 btnEngine.addEventListener("click", () => sendToggle("/engine", "engine"));
 btnHorn.addEventListener("click", () => sendToggle("/horn", "horn"));
 btnLights.addEventListener("click", () => sendToggle("/lights", "lights"));
@@ -295,6 +358,11 @@ async function pollLoop(intervalMs, mySession) {
     const telemetryTimeout = Math.max(5000, intervalMs * 5);
     const payload = await enqueue(() => fetchJson(apiUrl("/telemetry"), telemetryTimeout));
     if (mySession !== sessionId || !payload) return;
+
+    if (payload && typeof payload === "object" && "dist" in payload) {
+      setDistance(payload.dist);
+    }
+
 
     if (Number(payload?.ok) !== 1) setStatus("bad", "Połączono, ale urządzenie zwraca ok != 1");
     else setStatus("ok", "Połączono i odbieram telemetrię");
@@ -334,6 +402,7 @@ async function connect() {
   setControlsEnabled(false);
 
   resetData();
+  setDistance("-");
   setStatus("", "Łączę…");
 
   try {
@@ -345,6 +414,7 @@ async function connect() {
       if ("horn" in initPayload) setToggleUI("horn", Number(initPayload.horn) === 1);
       if ("lights" in initPayload) setToggleUI("lights", Number(initPayload.lights) === 1);
       if (!("lights" in initPayload) && ("ind" in initPayload)) setToggleUI("lights", Number(initPayload.ind) === 1);
+      if ("dist" in initPayload) setDistance(initPayload.dist);
     }
 
     connected = true;
@@ -386,6 +456,7 @@ function disconnect() {
 
   setStatus("", "Rozłączono");
   setError("");
+  setDistance("-");
 }
 
 btnConnect.addEventListener("click", connect);

@@ -7,5 +7,10 @@
 
 void WifiApi_Init(void);
 void WifiApi_Process(void);
+void WifiApi_PollCommands(void);
+
+static int esp_send_raw(uint8_t id, const char *data, uint16_t len);
+static void send_http_len(uint8_t id, const char *data, uint32_t len);
+static void send_root_page(uint8_t id);
 
 #endif /* INC_WIFI_API_H_ */

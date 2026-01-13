@@ -123,6 +123,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	WifiApi_Process();
+	WifiApi_PollCommands();
     ProcessMultiThreads();
   }
   /* USER CODE END 3 */

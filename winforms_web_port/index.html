@@ -64,6 +64,8 @@
       <div class="status">
         <span id="dot" class="dot"></span>
         <span id="statusText">Rozłączono</span>
+        <span class="sep">•</span>
+        <span class="dist">DIST: <span id="distText">-</span></span>
       </div>
 
       <div id="error" class="error"></div>
@@ -71,17 +73,17 @@
 
     <div class="cards">
       <div class="card">
-        <h2>Silnik A (RPM w czasie)</h2>
+        <h2>Silnik A (SET + MEAS)</h2>
         <canvas id="chartA"></canvas>
       </div>
 
       <div class="card">
-        <h2>Silnik B (RPM w czasie)</h2>
+        <h2>Silnik B (SET + MEAS)</h2>
         <canvas id="chartB"></canvas>
       </div>
 
       <div class="card">
-        <h2>Wartość średnia (RPM w czasie)</h2>
+        <h2>Wartość średnia (SET + MEAS)</h2>
         <canvas id="chartAvg"></canvas>
       </div>
     </div>
