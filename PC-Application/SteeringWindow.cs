@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -96,6 +96,26 @@ namespace PC_Application
                 control.Enabled = true;
                 control.BackColor = Color.Transparent;
             }
+        }
+
+        // Synchronizacja po ponownym połączeniu: firmware INIT zawsze wyłącza napęd.
+        public void ResetConnectionState()
+        {
+            this.carIsRunning = false;
+            this.commandState_Engine = false;
+            this.commandState_Lights = false;
+            this.commandState_Horn = false;
+            this.commandState_ABS = false;
+            this.hornIsHorning = false;
+            this.isKeyUpPressed = false;
+            this.isKeyDownPressed = false;
+            this.isKeyLeftPressed = false;
+            this.isKeyRightPressed = false;
+            this.pointerAngle = 0.0F;
+            this.targetAngle = 0.0F;
+            this.carKeyTargetAngle = 0.0F;
+            this.speedometerArrowTargetAngle = 0.0F;
+            this.DisableControls();
         }
 
         public void DisableControls()

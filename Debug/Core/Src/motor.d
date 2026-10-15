@@ -34,7 +34,7 @@ Core/Src/motor.o: ../Core/Src/motor.c ../Core/Inc/motor.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_ll_usb.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pcd_ex.h \
  ../Core/Inc/pid.h ../Core/Inc/modules.h ../Core/Inc/motor.h \
- ../Core/Inc/usart.h
+ ../Core/Inc/usart.h ../Core/Inc/modules.h
 ../Core/Inc/motor.h:
 ../Core/Inc/tim.h:
 ../Core/Inc/main.h:
@@ -75,3 +75,4 @@ Core/Src/motor.o: ../Core/Src/motor.c ../Core/Inc/motor.h \
 ../Core/Inc/modules.h:
 ../Core/Inc/motor.h:
 ../Core/Inc/usart.h:
+../Core/Inc/modules.h:

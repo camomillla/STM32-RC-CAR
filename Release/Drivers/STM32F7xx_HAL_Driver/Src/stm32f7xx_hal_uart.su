@@ -60,7 +60,7 @@
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c:538:19:HAL_MultiProcessor_Init	16	static
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c:2695:19:HAL_MultiProcessor_EnableMuteMode	0	static,ignoring_inline_asm
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c:2715:19:HAL_MultiProcessor_DisableMuteMode	0	static,ignoring_inline_asm
-../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c:3258:19:UART_Start_Receive_IT	8	static,ignoring_inline_asm
+../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c:3258:19:UART_Start_Receive_IT	0	static,ignoring_inline_asm
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c:1308:19:HAL_UART_Receive_IT	8	static,ignoring_inline_asm
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c:3307:19:UART_Start_Receive_DMA	16	static,ignoring_inline_asm
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.c:1416:19:HAL_UART_Receive_DMA	8	static,ignoring_inline_asm

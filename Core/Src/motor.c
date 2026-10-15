@@ -6,12 +6,27 @@
  */
 
 #include "motor.h"
+#include "modules.h"
+#include <stdlib.h>
+extern volatile uint32_t uart2_last_valid_tick;
+extern volatile uint32_t uart2_link_timeout_count;
 
 /**
  * @brief Struktury przechowujące dane silników.
  */
 MOTOR motorA;
 MOTOR motorB;
+
+/* Instrumentacja pomiaru enkoderow. Nie zmienia algorytmu PWM/PID. */
+volatile uint32_t diag_tim6_ticks = 0;
+volatile uint32_t diag_a_nonzero_samples = 0;
+volatile uint32_t diag_b_nonzero_samples = 0;
+volatile uint32_t diag_a_pulses_sum = 0;
+volatile uint32_t diag_b_pulses_sum = 0;
+volatile uint32_t diag_a_reset_calls = 0;
+volatile uint32_t diag_b_reset_calls = 0;
+volatile int32_t diag_a_last_sample = 0;
+volatile int32_t diag_b_last_sample = 0;
 
 /**
  * @brief Inicjalizuje strukturę silnika.
@@ -60,6 +75,8 @@ void motor_calculate_speed(MOTOR* _motor)
  */
 void ResetMotor(MOTOR* _motor)
 {
+    if (_motor == &motorA) ++diag_a_reset_calls;
+    else if (_motor == &motorB) ++diag_b_reset_calls;
     _motor->set_speed = 0;
     _motor->pulse_count = (int16_t)__HAL_TIM_GET_COUNTER(_motor->encoder);
     __HAL_TIM_SET_COUNTER(_motor->encoder, 0);
@@ -74,6 +91,20 @@ void ResetMotor(MOTOR* _motor)
 void motor_update_count(MOTOR* _motor)
 {
     _motor->pulse_count = (int16_t)__HAL_TIM_GET_COUNTER(_motor->encoder);
+    /* Zapis trwaly: Live Expressions nie musi trafiac w 50/100 ms okienko. */
+    if (_motor == &motorA) {
+        diag_a_last_sample = _motor->pulse_count;
+        if (_motor->pulse_count != 0) {
+            ++diag_a_nonzero_samples;
+            diag_a_pulses_sum += (uint32_t)abs(_motor->pulse_count);
+        }
+    } else if (_motor == &motorB) {
+        diag_b_last_sample = _motor->pulse_count;
+        if (_motor->pulse_count != 0) {
+            ++diag_b_nonzero_samples;
+            diag_b_pulses_sum += (uint32_t)abs(_motor->pulse_count);
+        }
+    }
     __HAL_TIM_SET_COUNTER(_motor->encoder, 0);
 }
 
@@ -148,6 +179,18 @@ void Init_MotorSystem()
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* _htim)
 {
     if (_htim->Instance == TIM6) {
+        ++diag_tim6_ticks;
+        /* Niezalezny watchdog lacza - NIE zmienia pomiaru enkodera ani PID. */
+        if (engineOn &&
+            (uint32_t)(HAL_GetTick() - uart2_last_valid_tick) > 1200U) {
+            if (motorA.set_speed != 0 || motorB.set_speed != 0)
+                uart2_link_timeout_count++;
+            ResetMotor(&motorA);
+            ResetMotor(&motorB);
+            motorA.actual_PWM = 0;
+            motorB.actual_PWM = 0;
+            return;
+        }
         if (motorA.direction == BACK &&
             motorB.direction == BACK &&
             Distance <= 10) {
